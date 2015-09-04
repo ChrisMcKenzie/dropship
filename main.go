@@ -8,12 +8,12 @@ import (
 	"github.com/ChrisMcKenzie/dropship/couriers"
 	"github.com/ChrisMcKenzie/dropship/servers"
 	"github.com/ChrisMcKenzie/dropship/ssh"
+	"github.com/Sirupsen/logrus"
 	"github.com/julienschmidt/httprouter"
-	"github.com/the-control-group/data-service-api/logger"
 	"github.com/thoas/stats"
 )
 
-var log = logger.NewLogger()
+var log = logrus.New()
 var port = "3000"
 
 func Logger(h httprouter.Handle) httprouter.Handle {
