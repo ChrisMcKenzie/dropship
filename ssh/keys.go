@@ -23,6 +23,7 @@ func makeSigner(keyname string) (signer ssh.Signer, err error) {
 
 func makeKeyring() []ssh.Signer {
 	signers := []ssh.Signer{}
+	// TODO(ChrisMcKenzie): makekeyring from paths in env vars
 	keys := []string{
 		os.Getenv("HOME") + "/.ssh/id_rsa",
 		os.Getenv("HOME") + "/.ssh/id_dsa",
