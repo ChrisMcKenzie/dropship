@@ -7,6 +7,7 @@ import (
 
 	"github.com/ChrisMcKenzie/dropship/ssh"
 	"github.com/google/go-github/github"
+	"github.com/hashicorp/consul/api"
 	"github.com/julienschmidt/httprouter"
 	"github.com/the-control-group/data-service-api/logger"
 	"github.com/thoas/stats"
@@ -45,6 +46,14 @@ func Logger(h httprouter.Handle) httprouter.Handle {
 }
 
 func handleGithubDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	headers := r.Header
+
+	if headers.Get("X-GitHub-Event") != "deploy" {
+		log.Infof("Unable to handle event type %s", headers.Get("X-GitHub-Event"))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	var err error
 	payload := Payload{}
 	decoder := json.NewDecoder(r.Body)
@@ -63,7 +72,7 @@ func handleGithubDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Par
 
 	servers := []Server{}
 	if deployment.Servers.Provider == "consul" {
-		// TODO(ChrisMcKenzie): Write Consul provider
+		getServersFromConsul(deployment.Servers.Options)
 	} else if deployment.Servers.Provider == "payload" {
 		servers, err = getServersFromPayload(deployment.Servers.Options)
 		if err != nil {
@@ -92,6 +101,39 @@ func run(c string, servers []Server) {
 	}
 }
 
+func getServersFromConsul(opt json.RawMessage) (servers []Server, err error) {
+	options := struct {
+		serviceName string `json:"service_name"`
+	}{}
+	err = json.Unmarshal(opt, &options)
+	if err != nil {
+		return
+	}
+
+	config := api.DefaultConfig()
+	client, err := api.NewClient(config)
+	if err != nil {
+		return
+	}
+
+	catalog := client.Catalog()
+	services, _, err := catalog.Service(options.serviceName, "", nil)
+	if err != nil {
+		return
+	}
+
+	for _, service := range services {
+		servers = append(
+			servers,
+			Server{
+				Address: service.Address,
+			},
+		)
+	}
+
+	return
+}
+
 func getServersFromPayload(opt json.RawMessage) (servers []Server, err error) {
 	list := struct {
 		List []Server `json:"list"`
@@ -109,7 +151,8 @@ func main() {
 	router := httprouter.New()
 	s := stats.New()
 
-	router.POST("/deploy/github.com/:repo_owner/:repo_name", handleGithubDeploy)
+	router.POST("/deploy/github.com/:repo_owner/:repo_name",
+		Logger(handleGithubDeploy))
 
 	log.Info("Dropship listening on port " + port)
 	log.Fatal(http.ListenAndServe(":"+port, s.Handler(router)))
