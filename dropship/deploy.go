@@ -36,7 +36,7 @@ func HandleDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	} else if deployment.Servers.Provider == "payload" {
+	} else if deployment.Servers.Provider == "list" {
 		s, err = servers.GetServersFromPayload(deployment.Servers.Options)
 		if err != nil {
 			log.Error(err)
@@ -51,6 +51,7 @@ func HandleDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 }
 
 func run(c string, servers []servers.Server) {
+	log.Debugf("Deploying to %v", servers)
 	for _, server := range servers {
 		go func() {
 			log.Debugf("Excecuting Command on %s", server.Address)

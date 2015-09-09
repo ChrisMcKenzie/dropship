@@ -1,16 +1,13 @@
 package servers
 
-import "encoding/json"
-
-func GetServersFromPayload(opt json.RawMessage) (servers []Server, err error) {
-	list := struct {
-		List []Server `json:"list"`
-	}{}
-	if err = json.Unmarshal(opt, &list); err != nil {
-		return
+func GetServersFromPayload(opt map[string]interface{}) (servers []Server, err error) {
+	var list []Server
+	// TODO(ChrisMcKenzie): handle nil server list
+	for _, val := range opt["list"].([]string) {
+		list = append(list, Server{Address: val})
 	}
 
-	servers = list.List
+	servers = list
 
 	return
 }

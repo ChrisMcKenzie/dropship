@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/ChrisMcKenzie/dropship/logging"
 	"github.com/google/go-github/github"
 	"github.com/libgit2/git2go"
-	"gopkg.in/yaml.v2"
 )
 
 var log = logging.GetLogger()
@@ -59,25 +59,18 @@ func (c *GitHubCourier) Handle(r *http.Request) (Deployment, error) {
 	// Read dropship.yml
 	bytes, err := ioutil.ReadFile(
 		fmt.Sprintf(
-			pathTemplate,
-			*payload.Repository.Owner.Name,
+			pathTemplate+"/dropship.yml",
+			*payload.Repository.Owner.Login,
 			*payload.Repository.Name,
 		),
 	)
+	log.Debugf("dropship.yml: %s", bytes)
 	d, err = parseDeployment(bytes)
 	if err != nil {
 		return d, err
 	}
 
-	return d, nil
-}
-
-func parseDeployment(file []byte) (Deployment, error) {
-	var d Deployment
-	err := yaml.Unmarshal(file, &d)
-	if err != nil {
-		return d, err
-	}
+	os.RemoveAll(fmt.Sprintf(pathTemplate, *payload.Repository.Owner.Login, *payload.Repository.Name))
 
 	return d, nil
 }
@@ -86,12 +79,12 @@ func cloneRepo(payload Payload) (*git.Repository, error) {
 	repo, err := git.Clone(
 		fmt.Sprintf(
 			"git://git@github.com/%s/%s.git",
-			*payload.Repository.Owner.Name,
+			*payload.Repository.Owner.Login,
 			*payload.Repository.Name,
 		),
 		fmt.Sprintf(
 			"/tmp/dropship/%s/%s",
-			*payload.Repository.Owner.Name,
+			*payload.Repository.Owner.Login,
 			*payload.Repository.Name,
 		),
 		&git.CloneOptions{},

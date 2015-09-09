@@ -1,19 +1,8 @@
 package servers
 
-import (
-	"encoding/json"
+import "github.com/hashicorp/consul/api"
 
-	"github.com/hashicorp/consul/api"
-)
-
-func GetServersFromConsul(opt json.RawMessage) (servers []Server, err error) {
-	options := struct {
-		serviceName string `json:"service_name"`
-	}{}
-	err = json.Unmarshal(opt, &options)
-	if err != nil {
-		return
-	}
+func GetServersFromConsul(options map[string]interface{}) (servers []Server, err error) {
 
 	config := api.DefaultConfig()
 	client, err := api.NewClient(config)
@@ -22,7 +11,7 @@ func GetServersFromConsul(opt json.RawMessage) (servers []Server, err error) {
 	}
 
 	catalog := client.Catalog()
-	services, _, err := catalog.Service(options.serviceName, "", nil)
+	services, _, err := catalog.Service(options["service_name"].(string), "", nil)
 	if err != nil {
 		return
 	}
