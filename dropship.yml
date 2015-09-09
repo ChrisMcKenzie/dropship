@@ -3,7 +3,9 @@ servers:
   provider: list
   options:
     list:
-      - 198.199.95.67:22
+      -
+        address: 198.199.95.67:22
+        username: root
 
 commands:
   - ls /
