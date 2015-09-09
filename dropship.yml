@@ -1,0 +1,7 @@
+servers:
+  # optionally can be consul
+  provider: list
+  list:
+    - 127.0.0.1
+
+command: ls

@@ -1,0 +1,42 @@
+<html>
+  <head></head>
+  <body>
+    <h1>Dropship</h1>
+    <a href="/auth/github">Signin with github</a>
+
+    <ul id="repos"></ul>
+
+    <script>
+      var list = document.querySelector('#repos');
+
+      function addHook(repo) {
+        call("POST", "/api/github/repos/" + repo + "/hook", function(err, result){
+          console.log(result);
+        });
+      }
+
+      call("GET", "/api/github/repos", function(err, result){
+        result.forEach(function(repo){
+          console.log(repo);
+          var item = document.createElement('li');
+          item.innerHTML = repo.full_name + ' <a href="#" onclick="addHook(\'' + repo.full_name + '\')">Add hook</a>';
+          list.appendChild(item);
+        });
+      });
+
+      function call(method, url, callback) {
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = function(){
+          if (httpRequest.readyState === 4) {
+              // everything is good, the response is received
+              callback(null, JSON.parse(httpRequest.response));
+          } else {
+              // still not ready
+          }
+        };
+        httpRequest.open(method, url, true);
+        httpRequest.send();
+      }
+    </script>
+  </body>
+</html>
