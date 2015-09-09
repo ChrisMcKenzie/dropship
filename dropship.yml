@@ -3,7 +3,7 @@ servers:
   provider: list
   options:
     list:
-      - 198.199.95.67
+      - 198.199.95.67:22
 
 commands:
   - ls /
