@@ -1,14 +1,26 @@
 package couriers
 
-import "gopkg.in/yaml.v2"
+import (
+	"net/http"
+
+	"gopkg.in/yaml.v2"
+)
 
 type (
 	Deployment struct {
+		Id       int      `yaml:"-"`
+		Owner    string   `yaml:"-"`
+		Repo     string   `yaml:"-"`
 		Commands []string `yaml:"commands"`
 		Servers  struct {
 			Provider string                 `yaml:"provider"`
 			Options  map[string]interface{} `yaml:"options"`
 		} `yaml:"servers"`
+	}
+
+	Courier interface {
+		Handle(*http.Request) (Deployment, error)
+		UpdateStatus(Deployment, string, string) error
 	}
 )
 

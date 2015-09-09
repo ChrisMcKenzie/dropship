@@ -2,8 +2,10 @@ package github
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/ChrisMcKenzie/dropship/dropship/database"
 	"github.com/ChrisMcKenzie/dropship/logging"
 	"github.com/google/go-github/github"
 	"github.com/julienschmidt/httprouter"
@@ -11,6 +13,10 @@ import (
 )
 
 var log = logging.GetLogger()
+
+func storeAccessToken() {
+
+}
 
 func AddHook(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c, _ := r.Cookie("github")
@@ -43,6 +49,15 @@ func AddHook(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return
+	}
+
+	err = database.StoreTokenFor(
+		fmt.Sprintf("%s/%s", p.ByName("repo_owner"), p.ByName("repo_name")),
+		c.Value,
+	)
+
+	if err != nil {
+		log.Errorf("unable to store access token for repo %s", err)
 	}
 
 	log.Debugf("Hook Created: %v", hook)

@@ -18,8 +18,9 @@ func HandleDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	var deployment couriers.Deployment
 	var err error
+	var c couriers.Courier
 	if handler == "github.com" {
-		c := couriers.NewGithubCourier()
+		c = couriers.NewGithubCourier()
 		deployment, err = c.Handle(r)
 		if err != nil {
 			log.Error(err)
@@ -45,21 +46,26 @@ func HandleDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		}
 	}
 
-	run(deployment.Commands, s)
+	run(c, deployment, s)
 
 	fmt.Fprintf(w, "deploying %s", p.ByName("repo_name"))
 }
 
-func run(c []string, servers []servers.Server) {
+func run(c couriers.Courier, d couriers.Deployment, servers []servers.Server) {
 	log.Debugf("Deploying to %v", servers)
 	for _, server := range servers {
 		go func() {
 			log.Debugf("Excecuting Command on %s", server.Address)
 			res := ssh.Execute(
-				c,
+				d.Commands,
 				server.Address,
 				ssh.NewClientConfig(server.User, server.Password),
 			)
+
+			err := c.UpdateStatus(d, "success", fmt.Sprintf("Deployed to %s", server.Address))
+			if err != nil {
+				log.Error(err)
+			}
 			log.Debug(res)
 		}()
 	}

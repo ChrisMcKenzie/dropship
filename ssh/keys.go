@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -67,11 +68,10 @@ func Execute(commands []string, server string, config *ssh.ClientConfig) string 
 	// the remote side using the Run method.
 	var b bytes.Buffer
 	session.Stdout = &b
-	for _, command := range commands {
-		if err := session.Run(command); err != nil {
-			return "Failed to run: " + err.Error()
-		}
-	}
 
-	return fmt.Sprintf("%s -> %s", server, b.String())
+	script := "set -x\n" + strings.Join(commands, ";set +x;echo \"--------------\"; set -x;")
+
+	session.Run(script)
+
+	return fmt.Sprintf("[%s]: %s", server, b.String())
 }

@@ -4,11 +4,11 @@ func GetServersFromPayload(opt map[string]interface{}) (servers []Server, err er
 	var list []Server
 	// TODO(ChrisMcKenzie): handle nil server list
 	for _, val := range opt["list"].([]interface{}) {
-		server := val.(map[string]string)
+		server := val.(map[interface{}]interface{})
 		list = append(list, Server{
-			Address:  server["address"],
-			User:     server["username"],
-			Password: server["password"],
+			Address: server["address"].(string),
+			User:    server["username"].(string),
+			// Password: server["password"].(string),
 		})
 	}
 

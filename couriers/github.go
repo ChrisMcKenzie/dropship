@@ -8,9 +8,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ChrisMcKenzie/dropship/dropship/database"
 	"github.com/ChrisMcKenzie/dropship/logging"
 	"github.com/google/go-github/github"
 	"github.com/libgit2/git2go"
+	"golang.org/x/oauth2"
 )
 
 var log = logging.GetLogger()
@@ -71,7 +73,45 @@ func (c *GitHubCourier) Handle(r *http.Request) (Deployment, error) {
 
 	os.RemoveAll(fmt.Sprintf(pathTemplate, *payload.Repository.Owner.Login, *payload.Repository.Name))
 
+	d.Id = *payload.Deployment.ID
+	d.Owner = *payload.Repository.Owner.Login
+	d.Repo = *payload.Repository.Name
+
 	return d, nil
+}
+
+func (g *GitHubCourier) UpdateStatus(deployment Deployment, status string, desc string) error {
+	token, err := database.GetTokenFor(
+		fmt.Sprintf("%s/%s", deployment.Owner, deployment.Repo),
+	)
+
+	if err != nil {
+		return err
+	}
+
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+
+	client := github.NewClient(tc)
+
+	log.Debug(desc)
+	_, _, err = client.Repositories.CreateDeploymentStatus(
+		deployment.Owner,
+		deployment.Repo,
+		deployment.Id,
+		&github.DeploymentStatusRequest{
+			State:       &status,
+			Description: &desc,
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func cloneRepo(payload Payload) (*git.Repository, error) {
