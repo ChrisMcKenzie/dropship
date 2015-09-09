@@ -49,7 +49,7 @@ func NewClientConfig(u string, password string) *ssh.ClientConfig {
 	}
 }
 
-func Execute(command, server string, config *ssh.ClientConfig) string {
+func Execute(commands []string, server string, config *ssh.ClientConfig) string {
 	client, err := ssh.Dial("tcp", server, config)
 	if err != nil {
 		return "Failed to dial: " + err.Error()
@@ -67,8 +67,10 @@ func Execute(command, server string, config *ssh.ClientConfig) string {
 	// the remote side using the Run method.
 	var b bytes.Buffer
 	session.Stdout = &b
-	if err := session.Run(command); err != nil {
-		return "Failed to run: " + err.Error()
+	for _, command := range commands {
+		if err := session.Run(command); err != nil {
+			return "Failed to run: " + err.Error()
+		}
 	}
 
 	return fmt.Sprintf("%s -> %s", server, b.String())

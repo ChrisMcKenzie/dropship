@@ -45,12 +45,12 @@ func HandleDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		}
 	}
 
-	run(deployment.Command, s)
+	run(deployment.Commands, s)
 
 	fmt.Fprintf(w, "deploying %s", p.ByName("repo_name"))
 }
 
-func run(c string, servers []servers.Server) {
+func run(c []string, servers []servers.Server) {
 	log.Debugf("Deploying to %v", servers)
 	for _, server := range servers {
 		go func() {

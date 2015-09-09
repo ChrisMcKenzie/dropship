@@ -64,7 +64,6 @@ func (c *GitHubCourier) Handle(r *http.Request) (Deployment, error) {
 			*payload.Repository.Name,
 		),
 	)
-	log.Debugf("dropship.yml: %s", bytes)
 	d, err = parseDeployment(bytes)
 	if err != nil {
 		return d, err
