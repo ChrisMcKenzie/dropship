@@ -3,8 +3,8 @@ servers:
   provider: list
   options:
     list:
-      - 127.0.0.1
+      - 198.199.95.67
 
 commands:
-  - ls /srv
+  - ls /
   - echo "hello world"
