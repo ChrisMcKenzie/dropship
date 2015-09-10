@@ -114,10 +114,30 @@ func (g *GitHubCourier) UpdateStatus(deployment Deployment, status string, desc 
 	return nil
 }
 
+func credentialsCallback(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
+	ret, cred := git.NewCredSshKey("git", "/Users/chrism/.ssh/id_rsa.pub", "/users/chrism/.ssh/id_rsa", "")
+	return git.ErrorCode(ret), &cred
+}
+
+// Made this one just return 0 during troubleshooting...
+func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
+	return 0
+}
+
 func cloneRepo(payload Payload) (*git.Repository, error) {
+	cloneOptions := &git.CloneOptions{}
+	// use FetchOptions instead of directly RemoteCallbacks
+	// https://github.com/libgit2/git2go/commit/36e0a256fe79f87447bb730fda53e5cbc90eb47c
+	cloneOptions.FetchOptions = &git.FetchOptions{
+		RemoteCallbacks: git.RemoteCallbacks{
+			CredentialsCallback:      credentialsCallback,
+			CertificateCheckCallback: certificateCheckCallback,
+		},
+	}
+
 	repo, err := git.Clone(
 		fmt.Sprintf(
-			"git://git@github.com/%s/%s.git",
+			"git@github.com:%s/%s.git",
 			*payload.Repository.Owner.Login,
 			*payload.Repository.Name,
 		),
@@ -126,7 +146,7 @@ func cloneRepo(payload Payload) (*git.Repository, error) {
 			*payload.Repository.Owner.Login,
 			*payload.Repository.Name,
 		),
-		&git.CloneOptions{},
+		cloneOptions,
 	)
 
 	if err != nil {

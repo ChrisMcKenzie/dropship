@@ -25,6 +25,7 @@ type (
 )
 
 func parseDeployment(file []byte) (Deployment, error) {
+	log.Debug(string(file))
 	var d Deployment
 	err := yaml.Unmarshal(file, &d)
 	if err != nil {
