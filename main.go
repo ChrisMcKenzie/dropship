@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 
 	"github.com/ChrisMcKenzie/dropship/dropship"
 	"github.com/ChrisMcKenzie/dropship/dropship/auth"
@@ -13,7 +14,7 @@ import (
 )
 
 var log = logging.GetLogger()
-var port = "3000"
+var port = os.Getenv("PORT")
 
 func Logger(h httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
