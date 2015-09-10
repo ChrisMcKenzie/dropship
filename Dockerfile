@@ -18,6 +18,7 @@ RUN echo "deb http://ftp.debian.org/debian/ sid main" >> /etc/apt/sources.list &
 # either manually or with a tool like "godep".)
 RUN cd /go/src/github.com/chrismckenzie/dropship && \
     go get ./... && \
+    ln -s ./ui /go/bin && \
     go install
 
 # Run the outyet command by default when the container starts.
