@@ -53,6 +53,7 @@ func (c *GitHubCourier) Handle(r *http.Request) (Deployment, error) {
 	}
 
 	// Clone Repo
+	log.Info("Cloning repo...")
 	_, err := cloneRepo(payload)
 	if err != nil {
 		return d, err

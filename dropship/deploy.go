@@ -52,7 +52,7 @@ func HandleDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 }
 
 func run(c couriers.Courier, d couriers.Deployment, servers []servers.Server) {
-	log.Debugf("Deploying to %v", servers)
+	log.Infof("Deploying to %v", servers)
 	for _, server := range servers {
 		go func() {
 			log.Debugf("Excecuting Command on %s", server.Address)
