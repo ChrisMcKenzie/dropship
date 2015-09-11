@@ -2,6 +2,7 @@
 # and a workspace (GOPATH) configured at /go.
 FROM golang:1.5.1-wheezy
 
+WORKDIR /go/src/github.com/chrismckenzie/dropship 
 # Copy the local package files to the container's workspace.
 COPY . /go/src/github.com/chrismckenzie/dropship
 
@@ -16,13 +17,11 @@ RUN echo "deb http://ftp.debian.org/debian/ sid main" >> /etc/apt/sources.list &
 # Build the outyet command inside the container.
 # (You may fetch or manage dependencies here,
 # either manually or with a tool like "godep".)
-RUN cd /go/src/github.com/chrismckenzie/dropship && \
-    go get ./... && \
-    ln -s ./ui /go/bin && \
-    go install
+RUN go get ./... && \
+    go build -o app
 
 # Run the outyet command by default when the container starts.
-ENTRYPOINT /go/bin/dropship
+ENTRYPOINT ./app
 
 # Document that the service listens on port 8080.
 EXPOSE 3000
