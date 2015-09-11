@@ -35,7 +35,7 @@ func AddHook(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	name := "web"
 
-	url := fmt.Sprintf("http://%s/deploy/github.com/%s/%s", os.Getenv("APP_URL"), p.ByName("repo_owner"), p.ByName("repo_name"))
+	url := fmt.Sprintf("%s/deploy/github.com/%s/%s", os.Getenv("APP_URL"), p.ByName("repo_owner"), p.ByName("repo_name"))
 
 	hook, _, err := client.Repositories.CreateHook(
 		p.ByName("repo_owner"),

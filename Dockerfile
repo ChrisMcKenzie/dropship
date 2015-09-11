@@ -2,26 +2,22 @@
 # and a workspace (GOPATH) configured at /go.
 FROM golang:1.5.1-wheezy
 
+ENV GITHUB_CLIENT_ID "<your-github-client-id>"
+ENV GITHUB_CLIENT_SECRET "<your-github-client-secret>"
+ENV APP_URL "http://localhost:3000"
+
 WORKDIR /go/src/github.com/chrismckenzie/dropship 
-# Copy the local package files to the container's workspace.
+
 COPY . /go/src/github.com/chrismckenzie/dropship
 
-RUN echo "deb http://ftp.debian.org/debian/ sid main" >> /etc/apt/sources.list && \
-	apt-get update -qqy && \
-	apt-get install --no-install-recommends -qqy \
-	git libgit2-dev pkg-config apt-utils && \ 
-	apt-get autoclean -qqy && \
-  apt-get autoremove -qqy && \
-  rm -rf /var/lib/apt/lists/*
+RUN echo "deb http://ftp.debian.org/debian/ sid main" >> /etc/apt/sources.list
+RUN	apt-get update --no-upgrade --no-install-recommends
+RUN	apt-get install --no-upgrade --no-install-recommends \
+    -y libgit2-dev pkg-config
 
-# Build the outyet command inside the container.
-# (You may fetch or manage dependencies here,
-# either manually or with a tool like "godep".)
 RUN go get ./... && \
-    go build -o app
+    go build -o bin/dropship
 
-# Run the outyet command by default when the container starts.
-ENTRYPOINT ./app
+ENTRYPOINT ./bin/dropship
 
-# Document that the service listens on port 8080.
 EXPOSE 3000
