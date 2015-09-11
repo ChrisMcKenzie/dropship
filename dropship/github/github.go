@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/ChrisMcKenzie/dropship/dropship/database"
 	"github.com/ChrisMcKenzie/dropship/logging"
@@ -34,6 +35,8 @@ func AddHook(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	name := "web"
 
+	url := fmt.Sprintf("http://%s/deploy/github.com/%s/%s", os.Getenv("APP_URL"), p.ByName("repo_owner"), p.ByName("repo_name"))
+
 	hook, _, err := client.Repositories.CreateHook(
 		p.ByName("repo_owner"),
 		p.ByName("repo_name"),
@@ -41,7 +44,7 @@ func AddHook(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 			Name:   &name,
 			Events: []string{"deployment"},
 			Config: map[string]interface{}{
-				"url": "http://joog.chrismckenzie.io/deploy/github.com/" + p.ByName("repo_owner") + "/" + p.ByName("repo_name"),
+				"url": url,
 			},
 		},
 	)
