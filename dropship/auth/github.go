@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/ChrisMcKenzie/dropship/logging"
@@ -19,8 +20,8 @@ type GithubAuth struct {
 func NewGithubAuth() *GithubAuth {
 	return &GithubAuth{
 		oauthConfig: &oauth2.Config{
-			ClientID:     "a6af109ec75cc90f1bc7",
-			ClientSecret: "de27cbe36f863a961576d7f884e2ac398a946367",
+			ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+			ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 			Scopes:       []string{"user", "repo", "admin:repo_hook"},
 			Endpoint:     github.Endpoint,
 		},
