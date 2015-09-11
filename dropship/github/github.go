@@ -44,7 +44,8 @@ func AddHook(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 			Name:   &name,
 			Events: []string{"deployment"},
 			Config: map[string]interface{}{
-				"url": url,
+				"url":          url,
+				"content_type": "json",
 			},
 		},
 	)
