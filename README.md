@@ -33,10 +33,10 @@ which defines a few things such as task that it will run on the also defined ser
 ```
 
 ## Roadmap
-[X] Deployment via ssh on server.
-[ ] Environment specific deployments [#1](https://github.com/ChrisMcKenzie/dropship/issues/1)
-[ ] Multiple task definitions
-[ ] Deployment Logging and UI
-[ ] Setup UI
-[ ] Multiple users can view project
+- [X] Deployment via ssh on server.
+- [ ] Environment specific deployments [#1](https://github.com/ChrisMcKenzie/dropship/issues/1)
+- [ ] Multiple task definitions
+- [ ] Deployment Logging and UI
+- [ ] Setup UI
+- [ ] Multiple users can view project
 
