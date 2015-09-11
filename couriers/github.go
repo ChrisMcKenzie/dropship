@@ -115,7 +115,12 @@ func (g *GitHubCourier) UpdateStatus(deployment Deployment, status string, desc 
 }
 
 func credentialsCallback(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
-	ret, cred := git.NewCredSshKey("git", "/Users/chrism/.ssh/id_rsa.pub", "/users/chrism/.ssh/id_rsa", "")
+	ret, cred := git.NewCredSshKey(
+		"git",
+		os.Getenv("KEY_PATH")+"/.ssh/id_rsa.pub",
+		os.Getenv("KEY_PATH")+"/.ssh/id_rsa",
+		"",
+	)
 	return git.ErrorCode(ret), &cred
 }
 

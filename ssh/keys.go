@@ -26,8 +26,8 @@ func makeKeyring() []ssh.Signer {
 	signers := []ssh.Signer{}
 	// TODO(ChrisMcKenzie): makekeyring from paths in env vars
 	keys := []string{
-		os.Getenv("HOME") + "/.ssh/id_rsa",
-		os.Getenv("HOME") + "/.ssh/id_dsa",
+		os.Getenv("KEY_PATH") + "/.ssh/id_rsa",
+		os.Getenv("KEY_PATH") + "/.ssh/id_dsa",
 	}
 
 	for _, keyname := range keys {
