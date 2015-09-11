@@ -11,8 +11,8 @@ WORKDIR /go/src/github.com/chrismckenzie/dropship
 COPY . /go/src/github.com/chrismckenzie/dropship
 
 RUN echo "deb http://ftp.debian.org/debian/ sid main" >> /etc/apt/sources.list
-RUN	apt-get update --no-upgrade --no-install-recommends
-RUN	apt-get install --no-upgrade --no-install-recommends \
+RUN	apt-get update --no-upgrade --no-install-recommends && \
+    apt-get install --no-upgrade --no-install-recommends \
     -y libgit2-dev pkg-config
 
 RUN go get ./... && \
