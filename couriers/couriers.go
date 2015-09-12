@@ -3,8 +3,11 @@ package couriers
 import (
 	"net/http"
 
+	"github.com/ChrisMcKenzie/dropship/logging"
 	"gopkg.in/yaml.v2"
 )
+
+var log = logging.GetLogger()
 
 type (
 	Deployment struct {
@@ -24,7 +27,7 @@ type (
 	}
 )
 
-func parseDeployment(file []byte) (Deployment, error) {
+func ParseDeployment(file []byte) (Deployment, error) {
 	log.Debug(string(file))
 	var d Deployment
 	err := yaml.Unmarshal(file, &d)
