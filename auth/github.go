@@ -4,13 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ChrisMcKenzie/dropship/logging"
+	log "github.com/Sirupsen/logrus"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
-
-var log = logging.GetLogger()
 
 type GithubAuth struct {
 	oauthConfig *oauth2.Config

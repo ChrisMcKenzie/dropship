@@ -10,14 +10,13 @@ import (
 
 	"github.com/ChrisMcKenzie/dropship/couriers"
 	"github.com/ChrisMcKenzie/dropship/database"
-	"github.com/ChrisMcKenzie/dropship/logging"
+	log "github.com/Sirupsen/logrus"
 	"github.com/google/go-github/github"
 	"github.com/julienschmidt/httprouter"
 	"github.com/libgit2/git2go"
 	"golang.org/x/oauth2"
 )
 
-var log = logging.GetLogger()
 var pathTemplate = "/tmp/dropship/%s/%s"
 
 type (
@@ -36,29 +35,33 @@ func NewGithubCourier() *GitHubCourier {
 	return &GitHubCourier{}
 }
 
-func (c *GitHubCourier) Handle(r *http.Request) (couriers.Deployment, error) {
+func (c *GitHubCourier) Handle(r *http.Request) (*couriers.Deployment, error) {
 	var d couriers.Deployment
 	headers := r.Header
 
+	if headers.Get("X-Github-Event") != "ping" {
+		return nil, nil
+	}
+
 	if headers.Get("X-GitHub-Event") != "deployment" {
-		return d, errors.New("Unable to handle event " + headers.Get("X-GitHub-Event"))
+		return &d, errors.New("Unable to handle event " + headers.Get("X-GitHub-Event"))
 	}
 
 	payload := Payload{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&payload); err != nil {
-		return d, err
+		return &d, err
 	}
 
 	if err := json.Unmarshal(payload.Deployment.Payload, &d); err != nil {
-		return d, err
+		return &d, err
 	}
 
 	// Clone Repo
 	log.Info("Cloning repo...")
 	_, err := cloneRepo(payload)
 	if err != nil {
-		return d, err
+		return &d, err
 	}
 
 	// Read dropship.yml
@@ -71,7 +74,7 @@ func (c *GitHubCourier) Handle(r *http.Request) (couriers.Deployment, error) {
 	)
 	d, err = couriers.ParseDeployment(bytes)
 	if err != nil {
-		return d, err
+		return &d, err
 	}
 
 	os.RemoveAll(fmt.Sprintf(pathTemplate, *payload.Repository.Owner.Login, *payload.Repository.Name))
@@ -79,8 +82,9 @@ func (c *GitHubCourier) Handle(r *http.Request) (couriers.Deployment, error) {
 	d.Id = *payload.Deployment.ID
 	d.Owner = *payload.Repository.Owner.Login
 	d.Repo = *payload.Repository.Name
+	d.Environment = *payload.Deployment.Environment
 
-	return d, nil
+	return &d, nil
 }
 
 func (g *GitHubCourier) UpdateStatus(deployment couriers.Deployment, status string, desc string) error {

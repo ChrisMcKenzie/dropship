@@ -1,11 +1,17 @@
 servers:
-  # optionally can be consul
-  provider: list
-  options:
-    list:
-      -
-        address: 198.199.95.67:22
-        username: root
+  development:
+    # optionally can be consul
+    provider: list
+    options:
+      list:
+        -
+          address: 198.199.95.67:22
+          username: root
+  production:
+    provider: consul
+    options:
+      service_name: dropship
+      username: root
 
 commands:
   - ls /

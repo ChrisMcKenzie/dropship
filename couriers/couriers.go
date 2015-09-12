@@ -3,26 +3,25 @@ package couriers
 import (
 	"net/http"
 
-	"github.com/ChrisMcKenzie/dropship/logging"
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
-var log = logging.GetLogger()
-
 type (
 	Deployment struct {
-		Id       int      `yaml:"-"`
-		Owner    string   `yaml:"-"`
-		Repo     string   `yaml:"-"`
-		Commands []string `yaml:"commands"`
-		Servers  struct {
+		Id          int      `yaml:"-"`
+		Owner       string   `yaml:"-"`
+		Repo        string   `yaml:"-"`
+		Environment string   `yaml:"-"`
+		Commands    []string `yaml:"commands"`
+		Servers     map[string]struct {
 			Provider string                 `yaml:"provider"`
 			Options  map[string]interface{} `yaml:"options"`
 		} `yaml:"servers"`
 	}
 
 	Courier interface {
-		Handle(*http.Request) (Deployment, error)
+		Handle(*http.Request) (*Deployment, error)
 		UpdateStatus(Deployment, string, string) error
 	}
 )

@@ -9,7 +9,7 @@ import (
 	"github.com/ChrisMcKenzie/dropship/auth"
 	"github.com/ChrisMcKenzie/dropship/couriers/github"
 	"github.com/ChrisMcKenzie/dropship/deploy"
-	"github.com/ChrisMcKenzie/dropship/logging"
+	log "github.com/Sirupsen/logrus"
 	"github.com/julienschmidt/httprouter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -28,15 +28,13 @@ var DropshipCmd = &cobra.Command{
 
 var dropshipCmdV *cobra.Command
 
-var log = logging.GetLogger()
-
 var serverPort int
 var Verbose, Logging bool
 var CfgFile, BaseURL, GithubClientId, GithubSecret string
 
 func init() {
 	DropshipCmd.PersistentFlags().BoolVar(&Logging, "log", true, "Enable Logging")
-	DropshipCmd.PersistentFlags().BoolVar(&Verbose, "verbose", false, "Enable Verbose Logging")
+	DropshipCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Enable Verbose Logging")
 
 	DropshipCmd.Flags().IntVarP(&serverPort, "port", "p", 3000, "port on which the server will listen on.")
 	DropshipCmd.Flags().StringVar(&CfgFile, "config", "", "config file (config.yaml|json|toml)")
@@ -56,6 +54,7 @@ func Execute() {
 
 func AddCommands() {
 	DropshipCmd.AddCommand(version)
+	DropshipCmd.AddCommand(validate)
 }
 
 func InitializeConfig() {
@@ -73,6 +72,10 @@ func InitializeConfig() {
 			BaseURL = BaseURL + "/"
 		}
 		viper.Set("BaseURL", BaseURL)
+	}
+
+	if Verbose {
+		log.SetLevel(log.DebugLevel)
 	}
 }
 

@@ -6,7 +6,7 @@ var log *logrus.Logger
 
 func init() {
 	log = logrus.New()
-	log.Level = logrus.DebugLevel
+	log.Level = logrus.InfoLevel
 }
 
 func GetLogger() *logrus.Logger {
