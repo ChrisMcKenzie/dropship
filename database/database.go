@@ -1,40 +1,24 @@
 package database
 
 import (
-	"database/sql"
+	"log"
 
+	"github.com/ChrisMcKenzie/dropship/model"
+	"github.com/jinzhu/gorm"
 	_ "github.com/mxk/go-sqlite/sqlite3"
+	"github.com/spf13/viper"
 )
 
-var db *sql.DB
+var db gorm.DB
 
-func init() {
+func Init() {
+	dbPath := viper.GetString("database.path")
+	log.Printf("Opening database at %s", dbPath)
 	var err error
-	db, err = sql.Open("sqlite3", "dropship.db")
+	db, err = gorm.Open("sqlite3", dbPath)
 	if err != nil {
 		panic(err)
 	}
 
-	db.QueryRow(
-		"create table if not exists tokens (repo STRING, token STRING)",
-	)
-}
-
-func GetTokenFor(repo string) (res string, err error) {
-	err = db.QueryRow(
-		"SELECT token FROM tokens WHERE repo=?",
-		repo,
-	).Scan(&res)
-
-	return
-}
-
-func StoreTokenFor(repo, token string) error {
-	_, err := db.Exec(
-		"INSERT INTO tokens (repo, token) VALUES (?, ?)",
-		repo,
-		token,
-	)
-
-	return err
+	db.AutoMigrate(&model.User{}, &model.Repo{})
 }

@@ -13,10 +13,22 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type Deployment struct {
+	Id          int      `yaml:"-"`
+	Owner       string   `yaml:"-"`
+	Repo        string   `yaml:"-"`
+	Environment string   `yaml:"-"`
+	Commands    []string `yaml:"commands"`
+	Servers     map[string]struct {
+		Provider string                 `yaml:"provider"`
+		Options  map[string]interface{} `yaml:"options"`
+	} `yaml:"servers"`
+}
+
 func HandleDeploy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	handler := p.ByName("provider")
 
-	var deployment *couriers.Deployment
+	var deployment *Deployment
 	var err error
 	var c couriers.Courier
 	if handler == "github.com" {
