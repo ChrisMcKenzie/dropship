@@ -8,8 +8,8 @@ type User struct {
 	Login       string    `json:"login"`
 	Name        string    `json:"name"`
 	Email       string    `json:"email"`
-	AccessToken string    `json:"-"`
-	Gravatar    string    `json:"gravatar"`
+	Token       string    `json:"-"`
+	TokenExpiry time.Time `json:"-"`
 	CreatedAt   time.Time `json:"created"`
 	UpdatedAt   time.Time `json:"updated"`
 }

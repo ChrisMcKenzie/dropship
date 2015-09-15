@@ -5,12 +5,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	GithubClientId = viper.GetString("github.clientid")
-	GithubSecret   = viper.GetString("github.secret")
-)
-
-func init() {
+func Register() {
+	GithubClientId := viper.GetString("github.clientid")
+	GithubSecret := viper.GetString("github.secret")
 	courier.Register(
 		New(GithubClientId, GithubSecret),
 	)

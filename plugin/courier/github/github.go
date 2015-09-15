@@ -35,12 +35,13 @@ func (g *GitHub) GetKind() string {
 }
 
 func (g *GitHub) Authorize(c *gin.Context) (*model.Authentication, error) {
+	fmt.Println(fmt.Sprintf("http://%s/auth/%s", c.Request.Host, g.GetKind()))
 	config := &oauth2.Config{
 		ClientID:     g.Client,
 		ClientSecret: g.Secret,
 		Scopes:       []string{"user", "repo", "admin:repo_hook"},
 		Endpoint:     ghauth.Endpoint,
-		RedirectURL:  fmt.Sprintf("%s/api/auth/%s", c.Request.URL.Host, g.GetKind()),
+		RedirectURL:  fmt.Sprintf("http://%s/auth/%s", c.Request.Host, g.GetKind()),
 	}
 
 	code := c.Query("code")
@@ -48,7 +49,10 @@ func (g *GitHub) Authorize(c *gin.Context) (*model.Authentication, error) {
 	if len(code) == 0 {
 		random := util.GenerateRandom()
 		util.CreateCookie(c.Writer, "state", random)
-		c.Redirect(http.StatusTemporaryRedirect, config.AuthCodeURL(state))
+		c.Redirect(
+			http.StatusTemporaryRedirect,
+			config.AuthCodeURL(random, oauth2.AccessTypeOnline),
+		)
 		return nil, nil
 	}
 

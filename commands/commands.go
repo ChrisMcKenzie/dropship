@@ -6,7 +6,9 @@ import (
 
 	"github.com/ChrisMcKenzie/dropship/commands/dropship"
 	"github.com/ChrisMcKenzie/dropship/database"
+	"github.com/ChrisMcKenzie/dropship/util"
 	log "github.com/Sirupsen/logrus"
+	"github.com/chrismckenzie/dropship/plugin/courier/github"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -26,6 +28,7 @@ var DropshipCmd = &cobra.Command{
 		InitializeConfig()
 
 		database.Init()
+		github.Register()
 		dropship.NewHTTPServer(":" + strconv.Itoa(serverPort))
 	},
 }
@@ -56,6 +59,7 @@ func AddCommands() {
 
 func LoadDefaultSettings() {
 	viper.SetDefault("database.path", "dropship.db")
+	viper.SetDefault("secret", util.GenerateRandom())
 }
 
 func InitializeConfig() {

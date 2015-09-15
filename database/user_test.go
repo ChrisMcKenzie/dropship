@@ -3,22 +3,46 @@ package database
 import (
 	"fmt"
 	"testing"
+
+	"github.com/ChrisMcKenzie/dropship/model"
 )
 
 func TestUserCreate(t *testing.T) {
-	user := CreateUser(
+	user := NewUser(
 		"github.com",
 		"chrismckenzie",
 		"Chris McKenzie",
-		"chris@chrismckenzie.io",
-		"bd2d40d2d399280d23bcecbccb74c117",
 	)
+
+	CreateUser(user)
 
 	if user.Id == 0 {
 		t.Fail()
 	}
 
-	db.Where(&User{Login: "chrismckenzie"}).First(&user)
+	db.Where(&model.User{Login: "chrismckenzie"}).First(&user)
+
+	fmt.Println(user)
+
+	if user.Id == 0 {
+		t.Fail()
+	}
+}
+
+func TestUserFindOrCreate(t *testing.T) {
+	user := NewUser(
+		"github.com",
+		"chrismckenzie1",
+		"Chris McKenzie",
+	)
+
+	FindOrCreateUser(user)
+
+	if user.Id == 0 {
+		t.Fail()
+	}
+
+	db.Where(&model.User{Login: "chrismckenzie"}).First(&user)
 
 	fmt.Println(user)
 
