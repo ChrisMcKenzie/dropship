@@ -9,6 +9,7 @@ import (
 	"github.com/ChrisMcKenzie/dropship/model"
 	"github.com/ChrisMcKenzie/dropship/util"
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 	ghauth "golang.org/x/oauth2/github"
 )
@@ -80,6 +81,47 @@ func (g *GitHub) Authorize(c *gin.Context) (*model.Authentication, error) {
 	login.Expiry = token.Expiry
 
 	return login, nil
+}
+
+func (g *GitHub) GetRepos(user *model.User) ([]*model.Repo, error) {
+	var repos []*model.Repo
+	client := GetClient(user.Token)
+
+	list, _, err := client.Repositories.List("", &github.RepositoryListOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	})
+	if err != nil {
+		return repos, err
+	}
+
+	for _, repo := range list {
+		repo := model.Repo{
+			UserID:   user.Id,
+			Name:     *repo.Name,
+			Owner:    *repo.Owner.Login,
+			Courier:  "github.com",
+			URL:      *repo.HTMLURL,
+			CloneURL: *repo.GitURL,
+			Private:  *repo.Private,
+		}
+
+		repos = append(repos, &repo)
+	}
+
+	return repos, nil
+}
+
+func (g *GitHub) GetScript(user *model.User, repo *model.Repo, hook *model.Hook) ([]byte, error) {
+	client := GetClient(user.Token)
+	var opts = new(github.RepositoryContentGetOptions)
+	opts.Ref = hook.Sha
+	content, _, _, err := client.Repositories.GetContents(repo.Owner, repo.Name, "dropship.yml", opts)
+	if err != nil {
+		return nil, err
+	}
+	return content.Decode()
 }
 
 func (g *GitHub) ParseHook(r *http.Request) (*model.Deployment, error) {
