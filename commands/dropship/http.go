@@ -32,7 +32,10 @@ func (s *HTTPServer) registerHandlers() {
 
 	api := s.router.Group("/api", s.AuthMiddleware())
 	{
-		api.POST("/repos", s.PostRepo)
+		api.POST("/repos/:courier/:owner/:name", s.PostRepo)
+		api.GET("/repos/:courier", s.GetCourierRepos)
 		api.GET("/repos", s.GetRepos)
+
+		api.GET("/users", s.GetUsers)
 	}
 }

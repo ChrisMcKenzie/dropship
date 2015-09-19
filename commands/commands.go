@@ -6,7 +6,7 @@ import (
 
 	"github.com/ChrisMcKenzie/dropship/commands/dropship"
 	"github.com/ChrisMcKenzie/dropship/database"
-	"github.com/ChrisMcKenzie/dropship/util"
+	"github.com/ChrisMcKenzie/dropship/session"
 	log "github.com/Sirupsen/logrus"
 	"github.com/chrismckenzie/dropship/plugin/courier/github"
 	"github.com/spf13/cobra"
@@ -59,7 +59,7 @@ func AddCommands() {
 
 func LoadDefaultSettings() {
 	viper.SetDefault("database.path", "dropship.db")
-	viper.SetDefault("secret", util.GenerateRandom())
+	viper.SetDefault("secret", session.GenerateRandom())
 }
 
 func InitializeConfig() {

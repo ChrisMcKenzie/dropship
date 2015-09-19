@@ -20,5 +20,13 @@ func Init() {
 		panic(err)
 	}
 
+	// Enable Logger
+	db.LogMode(true)
+	db.CreateTable(&model.User{})
+	db.CreateTable(&model.Repo{})
 	db.AutoMigrate(&model.User{}, &model.Repo{})
+}
+
+func Query() *gorm.DB {
+	return &db
 }

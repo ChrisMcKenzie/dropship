@@ -3,7 +3,6 @@ package model
 import "time"
 
 type Deployment struct {
-	Id          int
 	Owner       string
 	Repo        string
 	Sha         string
@@ -12,4 +11,5 @@ type Deployment struct {
 	Gravatar    string
 	Timestamp   time.Time
 	Message     string
+	Model
 }

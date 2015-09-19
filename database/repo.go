@@ -19,7 +19,7 @@ func CreateRepo(repo *model.Repo) error {
 		return errors.New("Courier is a required field")
 	}
 
-	db.Create(repo)
+	db.Create(&repo)
 
 	return nil
 }
@@ -29,11 +29,14 @@ func GetRepo(owner, name string) *model.Repo {
 		Owner: owner,
 		Name:  name,
 	}
-	db.Where(repo).First(repo)
+	db.Preload("User").Where(repo).First(repo)
 	return repo
 }
 
 func GetRepos() (repos []model.Repo) {
 	db.Find(&repos)
+	for i, _ := range repos {
+		db.Model(repos[i]).Related(&repos[i].User)
+	}
 	return repos
 }

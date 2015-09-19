@@ -3,6 +3,7 @@ github:
   secret: de27cbe36f863a961576d7f884e2ac398a946367
 
 baseurl: http://joog.chrismckenzie.io
+secret: myawesometoken
 
 database:
   path: ./dropship.db

@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ChrisMcKenzie/dropship/httputil"
 	"github.com/ChrisMcKenzie/dropship/model"
-	"github.com/ChrisMcKenzie/dropship/util"
+	"github.com/ChrisMcKenzie/dropship/session"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -48,8 +49,8 @@ func (g *GitHub) Authorize(c *gin.Context) (*model.Authentication, error) {
 	code := c.Query("code")
 	state := c.Query("state")
 	if len(code) == 0 {
-		random := util.GenerateRandom()
-		util.CreateCookie(c.Writer, "state", random)
+		random := session.GenerateRandom()
+		httputil.CreateCookie(c.Writer, "state", random)
 		c.Redirect(
 			http.StatusTemporaryRedirect,
 			config.AuthCodeURL(random, oauth2.AccessTypeOnline),
@@ -57,8 +58,8 @@ func (g *GitHub) Authorize(c *gin.Context) (*model.Authentication, error) {
 		return nil, nil
 	}
 
-	cookieState, err := util.GetCookieValue(c.Request, "state")
-	util.DeleteCookie(c.Writer, "state")
+	cookieState, err := httputil.GetCookieValue(c.Request, "state")
+	httputil.DeleteCookie(c.Writer, "state")
 	if cookieState != state || err != nil {
 		return nil, errors.New("Invalid State Token")
 	}
@@ -77,6 +78,7 @@ func (g *GitHub) Authorize(c *gin.Context) (*model.Authentication, error) {
 	login := new(model.Authentication)
 	login.Login = *user.Login
 	login.Email = *user.Email
+	login.Name = *user.Name
 	login.Token = token.AccessToken
 	login.Expiry = token.Expiry
 
@@ -98,7 +100,7 @@ func (g *GitHub) GetRepos(user *model.User) ([]*model.Repo, error) {
 
 	for _, repo := range list {
 		repo := model.Repo{
-			UserID:   user.Id,
+			UserId:   user.Id,
 			Name:     *repo.Name,
 			Owner:    *repo.Owner.Login,
 			Courier:  "github.com",
@@ -113,7 +115,31 @@ func (g *GitHub) GetRepos(user *model.User) ([]*model.Repo, error) {
 	return repos, nil
 }
 
-func (g *GitHub) GetScript(user *model.User, repo *model.Repo, hook *model.Hook) ([]byte, error) {
+func (g *GitHub) Activate(repo *model.Repo, hookUrl string) error {
+	client := GetClient(repo.User.Token)
+	hookType := "web"
+
+	_, _, err := client.Repositories.CreateHook(
+		repo.Owner,
+		repo.Name,
+		&github.Hook{
+			Name:   &hookType,
+			Events: []string{"deployment"},
+			Config: map[string]interface{}{
+				"url":          hookUrl,
+				"content_type": "json",
+			},
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (g *GitHub) GetScript(user *model.User, repo *model.Repo, hook *model.Deployment) ([]byte, error) {
 	client := GetClient(user.Token)
 	var opts = new(github.RepositoryContentGetOptions)
 	opts.Ref = hook.Sha

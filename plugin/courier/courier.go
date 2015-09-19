@@ -13,8 +13,8 @@ type (
 		GetKind() string
 		ParseHook(*http.Request) (*model.Deployment, error)
 		GetRepos(user *model.User) ([]*model.Repo, error)
-		GetScript(user *model.User, repo *model.Repo, hook *model.Hook) ([]byte, error)
-		// UpdateStatus(*model.Deployment, string, string) error
+		GetScript(user *model.User, repo *model.Repo, deployment *model.Deployment) ([]byte, error)
+		Activate(repo *model.Repo, hook string) error
 	}
 )
 

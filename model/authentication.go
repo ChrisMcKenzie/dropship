@@ -8,4 +8,5 @@ type Authentication struct {
 	Name   string
 	Token  string
 	Expiry time.Time
+	Model
 }

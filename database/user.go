@@ -18,10 +18,15 @@ func GetUser(user *model.User) {
 	db.Where(user).First(user)
 }
 
+func GetUsers() (users []model.User) {
+	db.Find(&users)
+	return users
+}
+
 func FindOrCreateUser(user *model.User) {
 	db.Where(user).FirstOrCreate(user)
 }
 
-func UpdateUser(user *model.User) {
-	db.Model(user).Update(user)
+func UpdateUser(user *model.User) error {
+	return db.Model(user).Save(user).Error
 }
