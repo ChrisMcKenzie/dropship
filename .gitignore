@@ -24,5 +24,6 @@ _testmain.go
 *.prof
 
 *.db
+bin
 
 config.json
