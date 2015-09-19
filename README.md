@@ -37,6 +37,6 @@ which defines a few things such as task that it will run on the also defined ser
 - [ ] Environment specific deployments [#1](https://github.com/ChrisMcKenzie/dropship/issues/1)
 - [ ] Multiple task definitions [#2](https://github.com/ChrisMcKenzie/dropship/issues/2)
 - [ ] Deployment Logging and UI [#3](https://github.com/ChrisMcKenzie/dropship/issues/3)
-- [ ] Multiple users can view project
+- [ ] Permission system
 - [ ] Plugin system
 
