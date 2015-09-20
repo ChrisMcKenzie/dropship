@@ -10,6 +10,7 @@ import (
 )
 
 func (s *HTTPServer) DeployHook(c *gin.Context) {
+	user := ToUser(c)
 	courierParam := c.Param("courier")
 	courier := courier.Lookup(courierParam)
 	if courier == nil {
@@ -35,4 +36,16 @@ func (s *HTTPServer) DeployHook(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
+
+	script, err := courier.GetScript(user, repo, deployment)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+
+	_, err = parseScript(script)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+
+	// add task to work pool
 }

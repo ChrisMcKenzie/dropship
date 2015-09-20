@@ -101,6 +101,7 @@ func (g *GitHub) GetRepos(user *model.User) ([]*model.Repo, error) {
 	for _, repo := range list {
 		repo := model.Repo{
 			UserId:   user.Id,
+			User:     *user,
 			Name:     *repo.Name,
 			Owner:    *repo.Owner.Login,
 			Courier:  "github.com",
