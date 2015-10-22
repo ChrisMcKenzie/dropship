@@ -1,0 +1,61 @@
+#!/bin/sh
+# vim: set ft=sh :
+
+set -e
+
+case "$1" in
+  abort-upgrade|abort-remove|abort-deconfigure|configure)
+    ;;
+
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac
+
+if [ -f /etc/dropship.d/dropship.hcl ]; then
+  chmod 600 /etc/dropship.d/dropship.hcl
+fi
+
+dist() {
+  lsb_release -i | awk '{print tolower($3)}' | sed -e 's/^ *//' -e 's/ *$//'
+}
+
+version() {
+  lsb_release -r | awk '{print $2}' | sed -e 's/^ *//' -e 's/ *$//' | awk -F. '{ print $1 }'
+}
+
+upstart() {
+  if [ -d /etc/init ]; then
+    echo "Your system $(dist) $(version): using upstart to control Dropship"
+    if [ -f /usr/local/bin/dropship ]; then
+      if pidof /usr/local/bin/dropship >/dev/null; then
+        initctl stop dropship || :
+      fi
+    fi
+
+    cp -r /usr/share/dropship/init/dropship.conf /etc/init/dropship.conf
+    initctl start dropship || :
+  else
+    echo "Couldn't find upstart to control Dropship, cannot proceed."
+    echo "Open an issue and tell us about your system."
+    exit 1
+  fi
+}
+
+case "$(dist)" in
+  ubuntu)
+    if [ "$(version)" -lt "15" ]; then
+      upstart
+    else
+      echo "\033[33m Your system $(dist) $(version) \033[0m"
+      echo "\033[33m This system is not supported, you can install service manually \033[0m"
+    fi
+    ;;
+  *)
+    echo "\033[33m Your system $(dist) $(version) \033[0m"
+    echo "\033[33m This system is not supported, you can install service manually \033[0m"
+    ;;
+esac
+
+exit 0

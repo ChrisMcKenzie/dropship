@@ -1,0 +1,41 @@
+#!/bin/sh
+set -e
+
+dist() {
+  lsb_release -i | awk '{print tolower($3)}' | sed -e 's/^ *//' -e 's/ *$//'
+}
+
+version() {
+  lsb_release -r | awk '{print $2}' | sed -e 's/^ *//' -e 's/ *$//' | awk -F. '{ print $1 }'
+}
+
+echo Stopping dropship
+
+upstart() {
+  initctl stop dropship || :
+}
+
+validate_ver() {
+  echo "$(version) < $1" | bc
+}
+
+case "$(dist)" in
+  ubuntu)
+    if [ "$(version)" -lt "15" ]; then
+      upstart
+    else
+      if [ -f /usr/local/bin/dropship ]; then
+        if pidof /usr/local/bin/dropship >/dev/null; then
+          kill -9 `pidof /usr/local/bin/dropship`
+        fi
+      fi
+    fi
+    ;;
+  *)
+    if [ -f /usr/local/bin/dropship ]; then
+      if pidof /usr/local/bin/dropship >/dev/null; then
+        kill -9 `pidof /usr/local/bin/dropship`
+      fi
+    fi
+    ;;
+esac

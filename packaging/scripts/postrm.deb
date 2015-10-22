@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+dist() {
+  lsb_release -i | awk '{print tolower($3)}' | sed -e 's/^ *//' -e 's/ *$//'
+}
+
+version() {
+  lsb_release -r | awk '{print $2}' | sed -e 's/^ *//' -e 's/ *$//' | awk -F. '{ print $1 }'
+}
+
+upstart() {
+  rm -f /etc/init/dropship.conf
+}
+
+validate_ver() {
+  echo "$(version) < $1" | bc
+}
+
+case "$(dist)" in
+  ubuntu)
+    if [ "$(version)" -lt "15" ]; then
+      upstart
+    else
+      echo "\033[33m Please remove service manually \033[0m"
+    fi
+    ;;
+  *)
+    echo "\033[33m Please remove service manually \033[0m"
+    ;;
+esac
+
+# https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html
+
+if [ "$1" = "purge" ] ; then
+  echo "Purging drone configuration"
+  rm -rf /etc/dropship.d
+fi
