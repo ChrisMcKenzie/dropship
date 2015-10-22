@@ -56,12 +56,16 @@ func (u *updater) check() {
 func (u *updater) update() {
 	log.Println("Starting update")
 	if u.service.SequentialUpdate {
+		log.Println("Acquiring lock for", u.service.Name)
 		lock, err := AcquireLock(u.service)
 		_, err = lock.Lock(nil)
 		if err != nil {
 			panic(err)
 		}
-		defer lock.Unlock()
+		defer func() {
+			log.Println("Releasing lock for", u.service.Name)
+			lock.Unlock()
+		}()
 	}
 
 	file, meta, err := u.repo.Download(u.service)
