@@ -20,22 +20,28 @@ on a given interval
 	Run: Action,
 }
 
-var dataDir, rackspaceUser, rackspaceKey, rackspaceRegion string
+var configPath string
 
 func init() {
-	Command.Flags().StringVarP(&dataDir, "data-dir", "d", "./", "directory that agent will look at for service configs")
-	Command.Flags().StringVar(&rackspaceUser, "rackspace-user", "", "user to use for rackspace repo")
-	Command.Flags().StringVar(&rackspaceKey, "rackspace-key", "", "key to use for rackspace repo")
-	Command.Flags().StringVar(&rackspaceRegion, "rackspace-region", "IAD", "region to use for rackspace repo")
+	Command.Flags().StringVar(&configPath, "config", "", "path to config file")
 }
 
 func Action(cmd *cobra.Command, args []string) {
-	services := loadServices(dataDir)
+	if configPath == "" {
+		log.Fatal("config must be supplied")
+	}
+
+	config, err := loadConfig(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	services := loadServices(config.ConfigDir)
 
 	rackspace.Setup(
-		rackspaceUser,
-		rackspaceKey,
-		rackspaceRegion,
+		config.Rackspace.User,
+		config.Rackspace.Key,
+		config.Rackspace.Region,
 	)
 
 	ch := make(chan struct{})

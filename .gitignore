@@ -7,6 +7,7 @@
 # Folders
 _obj
 _test
+packaging/root/usr/local
 
 # Architecture specific extensions/prefixes
 *.[568vq]
