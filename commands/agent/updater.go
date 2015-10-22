@@ -55,12 +55,14 @@ func (u *updater) check() {
 
 func (u *updater) update() {
 	log.Println("Starting update")
-	lock, err := AcquireLock(u.service)
-	_, err = lock.Lock(nil)
-	if err != nil {
-		panic(err)
+	if u.service.SequentialUpdate {
+		lock, err := AcquireLock(u.service)
+		_, err = lock.Lock(nil)
+		if err != nil {
+			panic(err)
+		}
+		defer lock.Unlock()
 	}
-	defer lock.Unlock()
 
 	file, meta, err := u.repo.Download(u.service)
 

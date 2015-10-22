@@ -8,6 +8,7 @@
 _obj
 _test
 packaging/root/usr/local
+test/
 
 # Architecture specific extensions/prefixes
 *.[568vq]

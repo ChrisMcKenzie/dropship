@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	ConfigDir string `hcl:"config"`
+	LockHost  string `hcl:"lockhost"`
 	Rackspace struct {
 		User   string `hcl:"user"`
 		Key    string `hcl:"key"`
@@ -21,8 +22,8 @@ func loadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	var config *Config
-	hcl.Decode(config, string(data))
+	config := &Config{}
+	err = hcl.Decode(config, string(data))
 
-	return config, nil
+	return config, err
 }
