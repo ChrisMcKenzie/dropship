@@ -2,6 +2,8 @@ package agent
 
 import (
 	"log"
+	"os/exec"
+	"strings"
 	"sync"
 	"time"
 
@@ -40,7 +42,7 @@ func (u *updater) check() {
 	isUpToDate, err := u.repo.IsUpdated(u.service)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// check the md5sums
@@ -58,22 +60,31 @@ func (u *updater) update() {
 	if err != nil {
 		panic(err)
 	}
+	defer lock.Unlock()
 
 	file, meta, err := u.repo.Download(u.service)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	log.Println("Finished Downloading")
 	if meta.ContentType == "application/x-gzip" {
 		err := untar(file, u.service.Artifact.Dest)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}
 
 	u.service.Hash = meta.Hash
 	log.Println("Setting current version to", u.service.Hash)
-	lock.Unlock()
+
+	if u.service.Command != "" {
+		cmd := strings.Fields(u.service.Command)
+		out, err := exec.Command(cmd[0], cmd[1:]...).Output()
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println(string(out))
+	}
 }
