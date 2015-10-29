@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/ChrisMcKenzie/dropship/installer"
+	"github.com/ChrisMcKenzie/dropship/lock"
 	"github.com/ChrisMcKenzie/dropship/updater"
+	"github.com/hashicorp/consul/api"
 	"github.com/spf13/viper"
 )
 
@@ -20,6 +22,7 @@ type Artifact struct {
 type Config struct {
 	Name          string   `hcl:",key"`
 	CheckInterval string   `hcl:"checkInterval"`
+	Sequential    bool     `hcl:"sequentialUpdates"`
 	Artifact      Artifact `hcl:"artifact,expand"`
 }
 
@@ -49,7 +52,7 @@ func NewDispatcher(cfg Config, t *Runner, shutdownCh <-chan struct{}) (*Dispatch
 	return &w, nil
 }
 
-func (w Dispatcher) start() {
+func (w *Dispatcher) start() {
 	for {
 		select {
 		case <-w.ticker.C:
@@ -64,7 +67,7 @@ func (w Dispatcher) start() {
 	}
 }
 
-func (w Dispatcher) Work() {
+func (w *Dispatcher) Work() {
 	log.Printf("[INF]: Starting Update check for %s...", w.config.Name)
 	user := viper.GetString("rackspaceUser")
 	key := viper.GetString("rackspaceKey")
@@ -80,6 +83,21 @@ func (w Dispatcher) Work() {
 	}
 
 	if isOutOfDate {
+		if w.config.Sequential {
+			log.Printf("[INF]: Acquiring lock for %s", w.config.Name)
+			l, err := lock.NewConsulLocker("dropship/services/"+w.config.Name, api.DefaultConfig())
+			if err != nil {
+				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
+				return
+			}
+			_, err = l.Acquire()
+			if err != nil {
+				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
+				return
+			}
+			defer l.Release()
+		}
+
 		log.Printf("[INF]: Installing update for %s...", w.config.Name)
 		fr, meta, err := u.Download(opts)
 		if err != nil {
@@ -98,8 +116,10 @@ func (w Dispatcher) Work() {
 			log.Printf("[ERR]: Unable to install update for %s %s", w.config.Name, err)
 		}
 
-		log.Printf("[INF]: Update for %s installed successfully. [files written: %d]", w.config.Name, filesWritten)
+		log.Printf("[INF]: Update for %s installed successfully. [hash: %s] [files written: %d]", w.config.Name, meta.Hash, filesWritten)
 		w.hash = meta.Hash
+	} else {
+		log.Printf("[INF]: %s is up to date", w.config.Name)
 	}
 }
 
