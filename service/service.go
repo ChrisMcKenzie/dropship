@@ -3,6 +3,8 @@ package service
 import (
 	"errors"
 	"log"
+	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/ChrisMcKenzie/dropship/installer"
@@ -22,6 +24,7 @@ type Artifact struct {
 type Config struct {
 	Name          string   `hcl:",key"`
 	CheckInterval string   `hcl:"checkInterval"`
+	PostCommand   string   `hcl:postCommand`
 	Sequential    bool     `hcl:"sequentialUpdates"`
 	Artifact      Artifact `hcl:"artifact,expand"`
 }
@@ -116,11 +119,25 @@ func (w *Dispatcher) Work() {
 			log.Printf("[ERR]: Unable to install update for %s %s", w.config.Name, err)
 		}
 
+		if w.config.PostCommand != "" {
+			res, err := executeCommand(w.config.PostCommand)
+			if err != nil {
+				log.Printf("[ERR]: Unable to execute postComment. %v", err)
+			}
+			log.Printf("[INF]: postCommand executed successfully. %v", res)
+		}
+
 		log.Printf("[INF]: Update for %s installed successfully. [hash: %s] [files written: %d]", w.config.Name, meta.Hash, filesWritten)
 		w.hash = meta.Hash
 	} else {
 		log.Printf("[INF]: %s is up to date", w.config.Name)
 	}
+}
+
+func executeCommand(c string) (string, error) {
+	cmd := strings.Fields(c)
+	out, err := exec.Command(cmd[0], cmd[1:]...).Output()
+	return string(out), err
 }
 
 func getInstaller(contentType string) (installer.Installer, error) {
