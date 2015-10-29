@@ -1,7 +1,6 @@
 # Dropship
 
-Dropship is a simple tool for getting artifacts on a cdn
-installed on to a server automatically.
+Dropship is a simple tool for installing and updating artifacts from CDN.
 
 ## Features
 
