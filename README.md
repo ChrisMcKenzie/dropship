@@ -13,6 +13,6 @@ and will download automatically
 ## Roadmap
 
 - [ ] Support for Amazon S3, and FTP
-- [ ] Support for different file types _(currently only tar.gz)_
+- [ ] Support for different file types deb, rpm, file _(currently only tar.gz)_
 - [ ] Reporting system
 - [ ] Redis, etcd for semaphore
