@@ -1,6 +1,6 @@
 # Dropship
 
-Dropship is a simple tool for get software in the form of artficats on a cdn
+Dropship is a simple tool for getting software in the form of artifacts on a cdn
 installed on to a server automatically.
 
 ## Features
