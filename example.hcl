@@ -2,8 +2,9 @@
 service "my-service" {
   name = "my-service-blue"
   sequentialUpdate = true
-  restartService = true
   checkInterval = "1s"
+  
+  postCommand = "echo hello world"
 
   artifact "rackspace" {
     bucket = "my-service"
@@ -14,10 +15,11 @@ service "my-service" {
 }
 
 service "my-service" {
-  name = "my-service-green"
+  name = "my-service-blue"
   sequentialUpdate = true
-  restartService = true
   checkInterval = "1s"
+  
+  postCommand = "echo hello world"
 
   artifact "rackspace" {
     bucket = "my-service"

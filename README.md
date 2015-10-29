@@ -1,7 +1,6 @@
 # Dropship
 
-Dropship is a simple tool for get software in the form of artficats on a cdn
-installed on to a server automatically.
+Dropship is a simple tool for installing and updating artifacts from CDN.
 
 ## Features
 
@@ -13,6 +12,6 @@ and will download automatically
 ## Roadmap
 
 - [ ] Support for Amazon S3, and FTP
-- [ ] Support for different file types _(currently only tar.gz)_
+- [ ] Support for different file types deb, rpm, file _(currently only tar.gz)_
 - [ ] Reporting system
 - [ ] Redis, etcd for semaphore
