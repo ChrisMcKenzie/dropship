@@ -21,7 +21,7 @@ func TestMain(t *testing.T) {
 }
 
 func TestConsulLockerAcquire(t *testing.T) {
-	lock, err := locker.Acquire("test")
+	lock, err := locker.Acquire(nil)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -37,7 +37,7 @@ func TestConsulLockerAcquire(t *testing.T) {
 	default:
 	}
 
-	err = locker.Release("test")
+	err = locker.Release()
 	if err != nil {
 		t.Fatal(err)
 	}

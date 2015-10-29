@@ -1,6 +1,6 @@
 package lock
 
 type Locker interface {
-	Acquire() (<-chan struct{}, error)
+	Acquire(<-chan struct{}) (<-chan struct{}, error)
 	Release() error
 }

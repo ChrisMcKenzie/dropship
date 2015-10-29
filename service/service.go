@@ -90,7 +90,7 @@ func (w *Dispatcher) Work() {
 				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
 				return
 			}
-			_, err = l.Acquire()
+			_, err = l.Acquire(w.shutdownCh)
 			if err != nil {
 				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
 				return

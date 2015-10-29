@@ -31,8 +31,8 @@ func NewConsulLocker(prefix string, config *api.Config) (*ConsulLocker, error) {
 	return l, nil
 }
 
-func (l *ConsulLocker) Acquire() (<-chan struct{}, error) {
-	return l.semaphore.Acquire(nil)
+func (l *ConsulLocker) Acquire(shutdownCh <-chan struct{}) (<-chan struct{}, error) {
+	return l.semaphore.Acquire(shutdownCh)
 }
 
 func (l *ConsulLocker) Release() error {
