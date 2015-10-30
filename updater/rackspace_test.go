@@ -15,7 +15,7 @@ var (
 	content           string = "hello world\r\n"
 	hash              string = "a0f2a3c1dcd5b1cac71bf0c03f2ff1bd"
 	conn              *swift.Connection
-	updater           *RackspaceUpdater
+	updater           Updater
 )
 
 const Container = "test-container"

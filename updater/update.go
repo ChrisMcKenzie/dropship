@@ -3,6 +3,6 @@ package updater
 import "io"
 
 type Updater interface {
-	CheckForUpdate(hash string, opts *Options) (bool, error)
-	Update(*Options) (io.Reader, MetaData, error)
+	IsOutdated(hash string, opts *Options) (bool, error)
+	Download(*Options) (io.ReadCloser, MetaData, error)
 }
