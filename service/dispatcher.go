@@ -99,6 +99,7 @@ func (w *Dispatcher) Work() {
 			res, err := executeCommand(w.config.PreCommand)
 			if err != nil {
 				log.Printf("[ERR]: Unable to execute preComment. %v", err)
+				return
 			}
 			log.Printf("[INF]: preCommand executed successfully. %v", res)
 		}
@@ -115,11 +116,13 @@ func (w *Dispatcher) Work() {
 		}
 
 		if w.config.PostCommand != "" {
-			res, err := executeCommand(w.config.PostCommand)
-			if err != nil {
-				log.Printf("[ERR]: Unable to execute postCommand. %v", err)
-			}
-			log.Printf("[INF]: postCommand executed successfully. %v", res)
+			defer func() {
+				res, err := executeCommand(w.config.PostCommand)
+				if err != nil {
+					log.Printf("[ERR]: Unable to execute postCommand. %v", err)
+				}
+				log.Printf("[INF]: postCommand executed successfully. %v", res)
+			}()
 		}
 
 		log.Printf("[INF]: Update for %s installed successfully. [hash: %s] [files written: %d]", w.config.Name, meta.Hash, filesWritten)
