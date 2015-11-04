@@ -88,19 +88,19 @@ func (w *Dispatcher) Work() {
 			defer l.Release()
 		}
 
+		log.Printf("[INF]: Downloading update for %s...", w.config.Name)
+		fr, meta, err := u.Download(opts)
+		if err != nil {
+			log.Printf("[ERR]: Unable to download update for %s %v", w.config.Name, err)
+			return
+		}
+
 		if w.config.PreCommand != "" {
 			res, err := executeCommand(w.config.PreCommand)
 			if err != nil {
 				log.Printf("[ERR]: Unable to execute preComment. %v", err)
 			}
 			log.Printf("[INF]: preCommand executed successfully. %v", res)
-		}
-
-		log.Printf("[INF]: Installing update for %s...", w.config.Name)
-		fr, meta, err := u.Download(opts)
-		if err != nil {
-			log.Printf("[ERR]: Unable to download update for %s %v", w.config.Name, err)
-			return
 		}
 
 		i, err := getInstaller(meta.ContentType)
