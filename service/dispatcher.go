@@ -88,6 +88,14 @@ func (w *Dispatcher) Work() {
 			defer l.Release()
 		}
 
+		if w.config.PreCommand != "" {
+			res, err := executeCommand(w.config.PreCommand)
+			if err != nil {
+				log.Printf("[ERR]: Unable to execute preComment. %v", err)
+			}
+			log.Printf("[INF]: preCommand executed successfully. %v", res)
+		}
+
 		log.Printf("[INF]: Installing update for %s...", w.config.Name)
 		fr, meta, err := u.Download(opts)
 		if err != nil {
@@ -109,7 +117,7 @@ func (w *Dispatcher) Work() {
 		if w.config.PostCommand != "" {
 			res, err := executeCommand(w.config.PostCommand)
 			if err != nil {
-				log.Printf("[ERR]: Unable to execute postComment. %v", err)
+				log.Printf("[ERR]: Unable to execute postCommand. %v", err)
 			}
 			log.Printf("[INF]: postCommand executed successfully. %v", res)
 		}

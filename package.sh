@@ -1,9 +1,13 @@
 mkdir -p packaging/output
 
-set -x
-GOARCH=$1 GOOS=$2 go build -o packaging/root/usr/local/bin/dropship main.go
+arch=$1
+os=$2
+version=$3
 
-fpm -s dir -t deb -n dropship -v "$1" -p packaging/output/dropship.$2-$1.deb \
+set -x
+GOARCH=$arch GOOS=$os go build -o packaging/root/usr/local/bin/dropship main.go
+
+fpm -s dir -t deb -n dropship -v "$version" -p packaging/output/dropship-$version.$os-$arch.deb \
   --deb-priority optional --category admin \
   --force \
   --after-install packaging/scripts/postinstall.deb \
@@ -13,8 +17,8 @@ fpm -s dir -t deb -n dropship -v "$1" -p packaging/output/dropship.$2-$1.deb \
   --url https://github.com/chrismckenzie/dropship \
   --description "Dropship automatically keeps you software up to date" \
   -m "Chris McKenzie <chris@chrismckenzie.io>" \
-  -a $1 \
+  -a $arch \
   --config-files /etc/dropship.d/dropship.hcl \
   packaging/root/=/
 
-cp packaging/output/dropship.$2-$1.deb .
+cp packaging/output/dropship-$version.$os-$arch.deb .

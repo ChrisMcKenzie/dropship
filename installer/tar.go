@@ -18,6 +18,7 @@ var ErrNilReader = errors.New("Install: must have a non-nil Reader")
 type TarInstaller struct{}
 
 func (i TarInstaller) Install(dest string, fr io.Reader) (count int, err error) {
+	moveOld(dest)
 	if fr == nil {
 		return count, ErrNilReader
 	}
@@ -65,5 +66,6 @@ func (i TarInstaller) Install(dest string, fr io.Reader) (count int, err error) 
 		count++
 	}
 
+	defer cleanup(dest, err)
 	return
 }

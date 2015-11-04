@@ -34,7 +34,10 @@ func agent(c *cobra.Command, args []string) {
 	shutdownCh := make(chan struct{})
 
 	for _, s := range services {
-		service.NewDispatcher(s, t, shutdownCh)
+		_, err := service.NewDispatcher(s, t, shutdownCh)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	sigs := make(chan os.Signal, 1)
