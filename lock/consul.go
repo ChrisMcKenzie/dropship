@@ -2,6 +2,7 @@ package lock
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/hashicorp/consul/api"
 )
@@ -17,7 +18,7 @@ func NewConsulLocker(prefix string, config *api.Config) (*ConsulLocker, error) {
 	}
 	name, _ := os.Hostname()
 	s, err := client.SemaphoreOpts(&api.SemaphoreOptions{
-		Prefix: "dropship/services/",
+		Prefix: filepath.Join("dropship/services/", prefix),
 		Limit:  1,
 
 		SessionName: name,

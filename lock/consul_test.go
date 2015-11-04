@@ -13,7 +13,7 @@ var (
 )
 
 func TestMain(t *testing.T) {
-	locker, err = NewConsulLocker("dropship/services", api.DefaultConfig())
+	locker, err = NewConsulLocker("dropship", api.DefaultConfig())
 	if err != nil {
 		t.Error(err)
 		t.Fail()
