@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
+// ConsulLocker is a Locker that will use consul as the coordinator for
+// establish a lock amongst multiple machines
 type ConsulLocker struct {
 	semaphore *api.Semaphore
 }

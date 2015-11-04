@@ -2,10 +2,13 @@ package service
 
 import "sync"
 
+// Worker is a data type that can perform work.
 type Worker interface {
 	Work()
 }
 
+// Runner is a type of worker pool that takes its work over a channel
+// this allows for a dispatcher to actually signal the work.
 type Runner struct {
 	work chan Worker
 	wg   sync.WaitGroup

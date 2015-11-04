@@ -11,6 +11,10 @@ import (
 
 var ErrNilReader = errors.New("Install: must have a non-nil Reader")
 
+// TarInstaller Defines an install Method that takes a destination path
+// and a io.Reader and untars and gzip decodes a tarball and
+// places the files inside on the FS with `dest` as their root
+// It returns the number of files written and an error
 type TarInstaller struct{}
 
 func (i TarInstaller) Install(dest string, fr io.Reader) (count int, err error) {
