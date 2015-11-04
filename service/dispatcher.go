@@ -115,6 +115,8 @@ func (w *Dispatcher) Work() {
 		}
 
 		log.Printf("[INF]: Update for %s installed successfully. [hash: %s] [files written: %d]", w.config.Name, meta.Hash, filesWritten)
+		// TODO(ChrisMcKenzie): hashes should be stored somewhere more
+		// permanent.
 		w.hash = meta.Hash
 	} else {
 		log.Printf("[INF]: %s is up to date", w.config.Name)
