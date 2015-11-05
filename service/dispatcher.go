@@ -142,7 +142,7 @@ func executeCommand(c string) (string, error) {
 
 func getInstaller(contentType string) (installer.Installer, error) {
 	switch contentType {
-	case "application/x-gzip":
+	case "application/x-gzip", "application/octet-stream":
 		var installer installer.TarInstaller
 		return installer, nil
 	}
