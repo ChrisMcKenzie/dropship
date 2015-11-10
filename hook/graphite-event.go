@@ -33,8 +33,7 @@ func (h GraphiteEventHook) Execute(config map[string]interface{}, service servic
 	}
 
 	config["data"] = data
-
-	config["tags"] = config["tags"].(string) + service.Name
+	config["tags"] = config["tags"].(string) + " " + service.Name
 
 	body, err := json.Marshal(config)
 	if err != nil {
