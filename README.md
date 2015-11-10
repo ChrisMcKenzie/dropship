@@ -14,4 +14,5 @@ and will download automatically
 - [ ] Support for Amazon S3, and FTP
 - [ ] Support for different file types deb, rpm, file _(currently only tar.gz)_
 - [ ] Reporting system
+- [ ] Hooks
 - [ ] Redis, etcd for semaphore
