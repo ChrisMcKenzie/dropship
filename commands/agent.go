@@ -13,8 +13,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-const maxGoRoutines = 10
-
 var agentCmd = &cobra.Command{
 	Use:   "agent",
 	Short: "starts automatic checks and update",

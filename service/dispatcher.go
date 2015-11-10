@@ -75,7 +75,7 @@ func (w *Dispatcher) Work() {
 	if isOutOfDate {
 		if w.config.Sequential {
 			log.Printf("[INF]: Acquiring lock for %s", w.config.Name)
-			l, err := lock.NewConsulLocker("dropship/services/"+w.config.Name, api.DefaultConfig())
+			l, err := lock.NewConsulLocker(w.config.Name, api.DefaultConfig())
 			if err != nil {
 				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
 				return
@@ -98,8 +98,7 @@ func (w *Dispatcher) Work() {
 		if w.config.PreCommand != "" {
 			res, err := executeCommand(w.config.PreCommand)
 			if err != nil {
-				log.Printf("[ERR]: Unable to execute preComment. %v", err)
-				return
+				log.Printf("[ERR]: Unable to execute preCommand. %v", err)
 			}
 			log.Printf("[INF]: preCommand executed successfully. %v", res)
 		}
