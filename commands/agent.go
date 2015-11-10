@@ -1,14 +1,12 @@
 package commands
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 
 	"github.com/ChrisMcKenzie/dropship/service"
-	"github.com/hashicorp/hcl"
+	"github.com/ChrisMcKenzie/dropship/work"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -21,18 +19,17 @@ var agentCmd = &cobra.Command{
 
 func agent(c *cobra.Command, args []string) {
 	InitializeConfig()
-
 	root := viper.GetString("servicePath")
-	services, err := loadServices(root)
+	services, err := service.LoadServices(root)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	t := service.NewRunner(len(services))
+	t := work.NewRunner(len(services))
 	shutdownCh := make(chan struct{})
 
 	for _, s := range services {
-		_, err := service.NewDispatcher(s, t, shutdownCh)
+		_, err := work.NewDispatcher(s, t, shutdownCh)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -44,22 +41,4 @@ func agent(c *cobra.Command, args []string) {
 	close(shutdownCh)
 
 	t.Shutdown()
-}
-
-func loadServices(root string) (d []service.Config, err error) {
-	files, _ := filepath.Glob(root + "/*.hcl")
-	for _, file := range files {
-		var data []byte
-		data, err = ioutil.ReadFile(file)
-		if err != nil {
-			return
-		}
-
-		var deploy struct {
-			Services []service.Config `hcl:"service,expand"`
-		}
-		hcl.Decode(&deploy, string(data))
-		d = append(d, deploy.Services...)
-	}
-	return
 }

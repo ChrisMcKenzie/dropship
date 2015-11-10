@@ -1,4 +1,4 @@
-package service
+package work
 
 import (
 	"errors"
@@ -7,8 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChrisMcKenzie/dropship/hook"
 	"github.com/ChrisMcKenzie/dropship/installer"
 	"github.com/ChrisMcKenzie/dropship/lock"
+	"github.com/ChrisMcKenzie/dropship/service"
 	"github.com/ChrisMcKenzie/dropship/updater"
 	"github.com/hashicorp/consul/api"
 	"github.com/spf13/viper"
@@ -17,14 +19,14 @@ import (
 // Dispatcher is responsible for managing a given services state and
 // sending work to the Runner pool
 type Dispatcher struct {
-	config     Config
+	config     service.Config
 	ticker     *time.Ticker
 	task       *Runner
 	hash       string
 	shutdownCh <-chan struct{}
 }
 
-func NewDispatcher(cfg Config, t *Runner, shutdownCh <-chan struct{}) (*Dispatcher, error) {
+func NewDispatcher(cfg service.Config, t *Runner, shutdownCh <-chan struct{}) (*Dispatcher, error) {
 	w := Dispatcher{
 		config:     cfg,
 		task:       t,
@@ -64,9 +66,9 @@ func (w *Dispatcher) Work() {
 	region := viper.GetString("rackspaceRegion")
 
 	u := updater.NewRackspaceUpdater(user, key, region)
-	opts := &updater.Options{w.config.Artifact.Bucket, w.config.Artifact.Path}
+	opts := &updater.Options{w.config.Artifact[0].Bucket, w.config.Artifact[0].Path}
 
-	isOutOfDate, err := u.IsOutdated(w.hash, opts)
+	isOutOfDate, err := u.IsOutdated(w.config.Hash, opts)
 	if err != nil {
 		log.Printf("[ERR]: Unable to check updates for %s %v", w.config.Name, err)
 		return
@@ -96,11 +98,17 @@ func (w *Dispatcher) Work() {
 		}
 
 		if w.config.PreCommand != "" {
+			log.Printf("[INF]: preCommand has been deprecated.")
 			res, err := executeCommand(w.config.PreCommand)
 			if err != nil {
 				log.Printf("[ERR]: Unable to execute preCommand. %v", err)
 			}
 			log.Printf("[INF]: preCommand executed successfully. %v", res)
+		}
+
+		err = runHooks(w.config.BeforeHooks, w.config)
+		if err != nil {
+			log.Printf("[ERR]: Unable to execute beforeHooks. %v", err)
 		}
 
 		i, err := getInstaller(meta.ContentType)
@@ -109,12 +117,13 @@ func (w *Dispatcher) Work() {
 			return
 		}
 
-		filesWritten, err := i.Install(w.config.Artifact.Destination, fr)
+		filesWritten, err := i.Install(w.config.Artifact[0].Destination, fr)
 		if err != nil {
 			log.Printf("[ERR]: Unable to install update for %s %s", w.config.Name, err)
 		}
 
 		if w.config.PostCommand != "" {
+			log.Printf("[INF]: postCommand has been deprecated.")
 			defer func() {
 				res, err := executeCommand(w.config.PostCommand)
 				if err != nil {
@@ -127,7 +136,12 @@ func (w *Dispatcher) Work() {
 		log.Printf("[INF]: Update for %s installed successfully. [hash: %s] [files written: %d]", w.config.Name, meta.Hash, filesWritten)
 		// TODO(ChrisMcKenzie): hashes should be stored somewhere more
 		// permanent.
-		w.hash = meta.Hash
+		w.config.Hash = meta.Hash
+
+		err = runHooks(w.config.AfterHooks, w.config)
+		if err != nil {
+			log.Printf("[ERR]: Unable to execute beforeHooks. %v", err)
+		}
 	} else {
 		log.Printf("[INF]: %s is up to date", w.config.Name)
 	}
@@ -147,4 +161,17 @@ func getInstaller(contentType string) (installer.Installer, error) {
 	}
 
 	return nil, errors.New("Unable to determine installation method from file type")
+}
+
+func runHooks(hooks []service.Hook, service service.Config) error {
+	for _, h := range hooks {
+		for hookName, config := range h {
+			hook := hook.GetHookByName(hookName)
+			if hook != nil {
+				log.Printf("[INF]: Executing \"%s\" hook with %+v", hookName, config)
+				hook.Execute(config, service)
+			}
+		}
+	}
+	return nil
 }
