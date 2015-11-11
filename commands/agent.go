@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 
 	"github.com/ChrisMcKenzie/dropship/service"
 	"github.com/ChrisMcKenzie/dropship/work"
@@ -28,8 +29,10 @@ func agent(c *cobra.Command, args []string) {
 	t := work.NewRunner(len(services))
 	shutdownCh := make(chan struct{})
 
+	var wg sync.WaitGroup
+	wg.Add(len(services))
 	for _, s := range services {
-		_, err := work.NewDispatcher(s, t, shutdownCh)
+		_, err := work.NewDispatcher(s, t, &wg, shutdownCh)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -39,6 +42,7 @@ func agent(c *cobra.Command, args []string) {
 	signal.Notify(sigs, os.Interrupt)
 	<-sigs
 	close(shutdownCh)
+	wg.Wait()
 
 	t.Shutdown()
 }

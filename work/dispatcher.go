@@ -5,6 +5,7 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ChrisMcKenzie/dropship/hook"
@@ -23,21 +24,24 @@ type Dispatcher struct {
 	ticker     *time.Ticker
 	task       *Runner
 	hash       string
+	duration   time.Duration
+	wg         *sync.WaitGroup
 	shutdownCh <-chan struct{}
 }
 
-func NewDispatcher(cfg service.Config, t *Runner, shutdownCh <-chan struct{}) (*Dispatcher, error) {
+func NewDispatcher(cfg service.Config, t *Runner, wg *sync.WaitGroup, shutdownCh <-chan struct{}) (*Dispatcher, error) {
 	w := Dispatcher{
 		config:     cfg,
 		task:       t,
 		shutdownCh: shutdownCh,
+		wg:         wg,
 	}
 
-	dur, err := time.ParseDuration(cfg.CheckInterval)
+	var err error
+	w.duration, err = time.ParseDuration(cfg.CheckInterval)
 	if err != nil {
 		return nil, err
 	}
-	w.ticker = time.NewTicker(dur)
 
 	go w.start()
 
@@ -47,14 +51,14 @@ func NewDispatcher(cfg service.Config, t *Runner, shutdownCh <-chan struct{}) (*
 func (w *Dispatcher) start() {
 	for {
 		select {
-		case <-w.ticker.C:
-			w.task.Do(w)
 		case _, ok := <-w.shutdownCh:
 			if !ok {
 				log.Printf("Shutting down dispatcher for %s", w.config.Name)
-				w.ticker.Stop()
+				w.wg.Done()
 				return
 			}
+		case <-time.After(w.duration):
+			w.task.Do(w)
 		}
 	}
 }
