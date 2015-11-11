@@ -1,6 +1,7 @@
 package lock
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -13,6 +14,9 @@ var (
 )
 
 func TestMain(t *testing.T) {
+	if os.Getenv("CI") == "true" {
+		t.Skip("Skipping in CI")
+	}
 	locker, err = NewConsulLocker("dropship", api.DefaultConfig())
 	if err != nil {
 		t.Error(err)
@@ -21,6 +25,9 @@ func TestMain(t *testing.T) {
 }
 
 func TestConsulLockerAcquire(t *testing.T) {
+	if os.Getenv("CI") == "true" {
+		t.Skip("Skipping in CI")
+	}
 	lock, err := locker.Acquire(nil)
 	if err != nil {
 		t.Fatal(err)

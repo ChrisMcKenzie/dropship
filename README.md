@@ -1,4 +1,4 @@
-# Dropship
+# Dropship [![wercker status](https://app.wercker.com/status/5d41eb9b54b132fe61de62acc6ee5f37/s "wercker status")](https://app.wercker.com/project/bykey/5d41eb9b54b132fe61de62acc6ee5f37) [ ![Download](https://api.bintray.com/packages/chrismckenzie/deb/dropship/images/download.svg) ](https://bintray.com/chrismckenzie/deb/dropship/_latestVersion)
 
 Dropship is a simple tool for installing and updating artifacts from CDN.
 

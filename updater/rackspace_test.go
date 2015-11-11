@@ -62,6 +62,9 @@ func setup() error {
 }
 
 func TestMain(t *testing.T) {
+	if os.Getenv("CI") == "true" {
+		t.Skip("Skipping in CI")
+	}
 	err := setup()
 	if err != nil {
 		t.Error(err)
@@ -72,6 +75,9 @@ func TestMain(t *testing.T) {
 }
 
 func TestRackspaceUpdaterIsOutdated(t *testing.T) {
+	if os.Getenv("CI") == "true" {
+		t.Skip("Skipping in CI")
+	}
 	cases := []struct {
 		hash     string
 		expected bool
@@ -116,6 +122,9 @@ func TestRackspaceUpdaterIsOutdated(t *testing.T) {
 }
 
 func TestRackspaceUpdaterDownload(t *testing.T) {
+	if os.Getenv("CI") == "true" {
+		t.Skip("Skipping in CI")
+	}
 	cases := []struct {
 		Options  *Options
 		Value    string

@@ -1,0 +1,11 @@
+box: golang:1.5-wheezy
+
+build:
+  steps:
+     - wercker/setup-go-workspace:
+        package-dir: github.com/chrismckenzie/dropship
+     - script:
+       name: Test build
+       code: |
+         go get ./...
+         go test -v ./...
