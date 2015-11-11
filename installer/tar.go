@@ -37,30 +37,13 @@ func (i TarInstaller) Install(dest string, fr io.Reader) (count int, err error) 
 		if err == io.EOF {
 			// end of tar archive
 			err = nil
-			break
+			return
 		}
 		if err != nil {
 			return
 		}
-		path := filepath.Join(dest, hdr.Name)
-		info := hdr.FileInfo()
 
-		if info.IsDir() {
-			if err = os.MkdirAll(path, info.Mode()); err != nil {
-				return
-			}
-			continue
-		}
-
-		var file *os.File
-		file, err = os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
-		if err != nil {
-			return
-		}
-		defer file.Close()
-
-		_, err = io.Copy(file, tr)
-		if err != nil {
+		if err = writePath(hdr, tr, dest); err != nil {
 			return
 		}
 		count++
@@ -68,4 +51,34 @@ func (i TarInstaller) Install(dest string, fr io.Reader) (count int, err error) 
 
 	defer cleanup(dest, err)
 	return
+}
+
+func writePath(hdr *tar.Header, tr *tar.Reader, dest string) (err error) {
+	path := filepath.Join(dest, hdr.Name)
+	info := hdr.FileInfo()
+
+	if info.IsDir() {
+		if err = os.MkdirAll(path, info.Mode()); err != nil {
+			return
+		}
+		return
+	}
+
+	var file *os.File
+	dirPath := filepath.Dir(path)
+	if err = os.MkdirAll(dirPath, os.ModePerm); err != nil {
+		return
+	}
+	file, err = os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, tr)
+	if err != nil {
+		return
+	}
+
+	return nil
 }
