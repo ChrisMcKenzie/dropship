@@ -101,13 +101,15 @@ func (w *Dispatcher) Work() {
 			return
 		}
 
+		// Deprecated
 		if w.config.PreCommand != "" {
-			log.Printf("[INF]: preCommand has been deprecated.")
+			log.Printf("[WARN]: preCommand has been deprecated.")
 			res, err := executeCommand(w.config.PreCommand)
 			if err != nil {
 				log.Printf("[ERR]: Unable to execute preCommand. %v", err)
+			} else {
+				log.Printf("[INF]: preCommand executed successfully. %v", res)
 			}
-			log.Printf("[INF]: preCommand executed successfully. %v", res)
 		}
 
 		err = runHooks(w.config.BeforeHooks, w.config)
@@ -126,14 +128,16 @@ func (w *Dispatcher) Work() {
 			log.Printf("[ERR]: Unable to install update for %s %s", w.config.Name, err)
 		}
 
+		// Deprecated
 		if w.config.PostCommand != "" {
-			log.Printf("[INF]: postCommand has been deprecated.")
+			log.Printf("[WARN]: postCommand has been deprecated.")
 			defer func() {
 				res, err := executeCommand(w.config.PostCommand)
 				if err != nil {
 					log.Printf("[ERR]: Unable to execute postCommand. %v", err)
+				} else {
+					log.Printf("[INF]: postCommand executed successfully. %v", res)
 				}
-				log.Printf("[INF]: postCommand executed successfully. %v", res)
 			}()
 		}
 
@@ -151,6 +155,7 @@ func (w *Dispatcher) Work() {
 	}
 }
 
+// Deprecated
 func executeCommand(c string) (string, error) {
 	cmd := strings.Fields(c)
 	out, err := exec.Command(cmd[0], cmd[1:]...).Output()
