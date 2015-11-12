@@ -2,6 +2,7 @@ package hook
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/ChrisMcKenzie/dropship/service"
@@ -25,12 +26,21 @@ func (h ConsulEventHook) Execute(config map[string]interface{}, service service.
 		return err
 	}
 
+	name, ok := config["name"].(string)
+	serv, ok := config["service"].(string)
+	tag, ok := config["tag"].(string)
+	node, ok := config["node"].(string)
+
+	if !ok {
+		return errors.New("Consul Hook: invalid config")
+	}
+
 	id, meta, err := client.Event().Fire(&api.UserEvent{
-		Name:          config["name"].(string),
+		Name:          name,
 		Payload:       plBytes,
-		ServiceFilter: config["service"].(string),
-		TagFilter:     config["tag"].(string),
-		NodeFilter:    config["node"].(string),
+		ServiceFilter: serv,
+		TagFilter:     tag,
+		NodeFilter:    node,
 	}, nil)
 
 	fmt.Println(id, meta, err)

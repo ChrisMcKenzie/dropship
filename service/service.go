@@ -24,12 +24,12 @@ type Config struct {
 	BeforeHooks   []Hook     `hcl:"before"`
 	AfterHooks    []Hook     `hcl:"after"`
 	Sequential    bool       `hcl:"sequentialUpdates"`
-	Artifact      []Artifact `hcl:"artifact"`
-	Hash          string
+	Artifact      []Artifact `hcl:"artifact,expand"`
+	Hash          string     `hcl:"hash"`
 }
 
 type ServiceFile struct {
-	Services []Config `hcl:"service"`
+	Services []Config `hcl:"service,expand"`
 }
 
 func LoadServices(root string) (d []Config, err error) {

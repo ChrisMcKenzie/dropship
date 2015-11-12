@@ -2,6 +2,7 @@ package work
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os/exec"
 	"strings"
@@ -40,7 +41,7 @@ func NewDispatcher(cfg service.Config, t *Runner, wg *sync.WaitGroup, shutdownCh
 	var err error
 	w.duration, err = time.ParseDuration(cfg.CheckInterval)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Dispatcher: Failed to start %s", err)
 	}
 
 	go w.start()
@@ -178,7 +179,10 @@ func runHooks(hooks []service.Hook, service service.Config) error {
 			hook := hook.GetHookByName(hookName)
 			if hook != nil {
 				log.Printf("[INF]: Executing \"%s\" hook with %+v", hookName, config)
-				hook.Execute(config, service)
+				err := hook.Execute(config, service)
+				if err != nil {
+					log.Printf("[ERR]: Unable to execute \"%s\" hook %v", hookName, err)
+				}
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package hook
 
 import (
+	"errors"
 	"os/exec"
 	"strings"
 
@@ -10,8 +11,11 @@ import (
 type ScriptHook struct{}
 
 func (h ScriptHook) Execute(config map[string]interface{}, service service.Config) error {
-	_, err := executeCommand(config["command"].(string))
-	return err
+	if c, ok := config["command"].(string); ok {
+		_, err := executeCommand(c)
+		return err
+	}
+	return errors.New("Script: exiting no command was given")
 }
 
 func executeCommand(c string) (string, error) {
