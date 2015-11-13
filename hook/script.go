@@ -2,6 +2,7 @@ package hook
 
 import (
 	"errors"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -12,14 +13,25 @@ type ScriptHook struct{}
 
 func (h ScriptHook) Execute(config map[string]interface{}, service service.Config) error {
 	if c, ok := config["command"].(string); ok {
-		_, err := executeCommand(c)
+
+		// TODO(ChrisMcKenzie): Make this more secure by jailing it.
+		var cwd string
+		if len(service.Artifact) >= 1 {
+			cwd = service.Artifact[0].Destination
+		}
+
+		_, err := executeCommand(c, cwd)
 		return err
 	}
 	return errors.New("Script: exiting no command was given")
 }
 
-func executeCommand(c string) (string, error) {
-	cmd := strings.Fields(c)
-	out, err := exec.Command(cmd[0], cmd[1:]...).Output()
+func executeCommand(c, cwd string) (string, error) {
+	sCmd := strings.Fields(c)
+	cmd := exec.Command(sCmd[0], sCmd[1:]...)
+	if _, err := os.Stat(cwd); !os.IsNotExist(err) {
+		cmd.Dir = cwd
+	}
+	out, err := cmd.Output()
 	return string(out), err
 }
