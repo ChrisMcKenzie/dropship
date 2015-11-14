@@ -19,7 +19,11 @@ file=dropship-$version.$os-$arch.deb
 
 function main() {
   set -x
-  GOARCH=$arch GOOS=$os go build -o packaging/root/usr/local/bin/dropship main.go
+  GOARCH=$arch GOOS=$os go build \
+    -ldflags="-X github.com/ChrisMcKenzie/dropship/commands.version=${version}
+    -X github.com/ChrisMcKenzie/dropship/commands.buildDate=`date -u +.%Y%m%d.%H%M%S`
+    -X github.com/ChrisMcKenzie/dropship/commands.commitHash=`git rev-parse --short HEAD 2>/dev/null`" \
+    -o packaging/root/usr/local/bin/dropship main.go
 
   fpm -s dir -t deb -n dropship -v "$version" -p packaging/output/dropship-$version.$os-$arch.deb \
     --deb-priority optional --category admin \

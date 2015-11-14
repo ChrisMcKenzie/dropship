@@ -42,6 +42,7 @@ func Execute() {
 
 func AddCommands() {
 	DropshipCmd.AddCommand(agentCmd)
+	DropshipCmd.AddCommand(versionCmd)
 }
 
 func InitializeConfig() {
