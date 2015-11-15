@@ -11,8 +11,8 @@ import (
 
 type ScriptHook struct{}
 
-func (h ScriptHook) Execute(config map[string]interface{}, service service.Config) error {
-	if c, ok := config["command"].(string); ok {
+func (h ScriptHook) Execute(config service.HookConfig, service service.Config) error {
+	if c := config["command"]; c != "" {
 
 		// TODO(ChrisMcKenzie): Make this more secure by jailing it.
 		var cwd string

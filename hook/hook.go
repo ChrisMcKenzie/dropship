@@ -8,7 +8,7 @@ type TemplateData struct {
 }
 
 type Hook interface {
-	Execute(config map[string]interface{}, service service.Config) error
+	Execute(config service.HookConfig, service service.Config) error
 }
 
 func GetHookByName(name string) Hook {

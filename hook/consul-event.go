@@ -11,7 +11,7 @@ import (
 
 type ConsulEventHook struct{}
 
-func (h ConsulEventHook) Execute(config map[string]interface{}, service service.Config) error {
+func (h ConsulEventHook) Execute(config service.HookConfig, service service.Config) error {
 	client, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
 		return err
@@ -26,10 +26,10 @@ func (h ConsulEventHook) Execute(config map[string]interface{}, service service.
 		return err
 	}
 
-	name, ok := config["name"].(string)
-	serv, ok := config["service"].(string)
-	tag, ok := config["tag"].(string)
-	node, ok := config["node"].(string)
+	name, ok := config["name"]
+	serv, ok := config["service"]
+	tag, ok := config["tag"]
+	node, ok := config["node"]
 
 	if !ok {
 		return errors.New("Consul Hook: invalid config")

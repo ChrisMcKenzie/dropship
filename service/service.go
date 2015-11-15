@@ -14,7 +14,8 @@ type Artifact struct {
 	Destination string `hcl:"destination"`
 }
 
-type Hook map[string]map[string]interface{}
+type HookConfig map[string]string
+type Hook map[string]HookConfig
 
 type Config struct {
 	Name          string     `hcl:",key"`

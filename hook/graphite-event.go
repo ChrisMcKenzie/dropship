@@ -14,16 +14,16 @@ import (
 
 type GraphiteEventHook struct{}
 
-func (h GraphiteEventHook) Execute(config map[string]interface{}, service service.Config) error {
-	host, ok := config["host"].(string)
+func (h GraphiteEventHook) Execute(config service.HookConfig, service service.Config) error {
+	host, ok := config["host"]
 	if !ok {
 		return fmt.Errorf("Graphite Hook: unable to call graphite invalid host provided %v", config["host"])
 	}
 	delete(config, "host")
 
-	config["when"] = time.Now().Unix()
+	config["when"] = string(time.Now().Unix())
 
-	if w, ok := config["what"].(string); ok {
+	if w, ok := config["what"]; ok {
 		what, err := parseTemplate(w, service)
 		if err != nil {
 			return err
@@ -32,7 +32,7 @@ func (h GraphiteEventHook) Execute(config map[string]interface{}, service servic
 		config["what"] = what
 	}
 
-	if d, ok := config["data"].(string); ok {
+	if d, ok := config["data"]; ok {
 		data, err := parseTemplate(d, service)
 		if err != nil {
 			return err
@@ -40,7 +40,7 @@ func (h GraphiteEventHook) Execute(config map[string]interface{}, service servic
 		config["data"] = data
 	}
 
-	config["tags"] = config["tags"].(string) + " " + service.Name
+	config["tags"] = config["tags"] + " " + service.Name
 
 	body, err := json.Marshal(config)
 	if err != nil {
