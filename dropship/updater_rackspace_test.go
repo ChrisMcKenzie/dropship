@@ -1,4 +1,4 @@
-package updater
+package dropship
 
 import (
 	"bytes"
@@ -61,7 +61,7 @@ func setup() error {
 	return err
 }
 
-func TestMain(t *testing.T) {
+func updaterSetup(t *testing.T) {
 	if os.Getenv("CI") == "true" {
 		t.Skip("Skipping in CI")
 	}
@@ -75,9 +75,7 @@ func TestMain(t *testing.T) {
 }
 
 func TestRackspaceUpdaterIsOutdated(t *testing.T) {
-	if os.Getenv("CI") == "true" {
-		t.Skip("Skipping in CI")
-	}
+	updaterSetup(t)
 	cases := []struct {
 		hash     string
 		expected bool
@@ -97,7 +95,10 @@ func TestRackspaceUpdaterIsOutdated(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		result, err := updater.IsOutdated(test.hash, &Options{Container, "test.txt"})
+		result, err := updater.IsOutdated(test.hash, UpdateConfig{
+			"bucket": Container,
+			"path":   "test.txt",
+		})
 		if err != nil {
 			t.Error(err)
 		}
@@ -108,14 +109,17 @@ func TestRackspaceUpdaterIsOutdated(t *testing.T) {
 	}
 
 	// negative non-existing file error
-	_, err := updater.IsOutdated("", &Options{Container, "no-file.txt"})
+	_, err := updater.IsOutdated("", UpdateConfig{
+		"bucket": Container,
+		"path":   "test.txt",
+	})
 	if err == nil {
 		t.Error("IsOutdated: Expected an error when accessing non-existent file.")
 	}
 
 	// negative generic error testing.
 	badUpdater := &RackspaceUpdater{}
-	_, err = badUpdater.IsOutdated("", &Options{})
+	_, err = badUpdater.IsOutdated("", UpdateConfig{})
 	if err == nil {
 		t.Error("IsOutdated: Expected an error with invalid credentials.")
 	}
@@ -126,24 +130,24 @@ func TestRackspaceUpdaterDownload(t *testing.T) {
 		t.Skip("Skipping in CI")
 	}
 	cases := []struct {
-		Options  *Options
+		Options  UpdateConfig
 		Value    string
 		MetaData MetaData
 		Error    error
 	}{
 		{
-			Options: &Options{
-				Bucket: Container,
-				Path:   "test.txt",
+			Options: UpdateConfig{
+				"bucket": Container,
+				"path":   "test.txt",
 			},
 			MetaData: MetaData{"text/plain", hash},
 			Error:    nil,
 			Value:    content,
 		},
 		{
-			Options: &Options{
-				Bucket: Container,
-				Path:   "no-file.txt",
+			Options: UpdateConfig{
+				"bucket": Container,
+				"path":   "no-file.txt",
 			},
 			Error: swift.ObjectNotFound,
 			Value: "",
@@ -175,7 +179,7 @@ func TestRackspaceUpdaterDownload(t *testing.T) {
 
 	// negative generic error testing.
 	badUpdater := &RackspaceUpdater{}
-	_, _, err := badUpdater.Download(&Options{})
+	_, _, err := badUpdater.Download(UpdateConfig{})
 	if err == nil {
 		t.Error("IsOutdated: Expected an error with invalid credentials.")
 	}

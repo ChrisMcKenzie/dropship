@@ -1,14 +1,12 @@
-package hook
-
-import "github.com/ChrisMcKenzie/dropship/service"
+package dropship
 
 type TemplateData struct {
-	service.Config
+	Config
 	Hostname string
 }
 
 type Hook interface {
-	Execute(config service.HookConfig, service service.Config) error
+	Execute(config HookConfig, service Config) error
 }
 
 func GetHookByName(name string) Hook {

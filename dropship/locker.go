@@ -1,4 +1,4 @@
-package lock
+package dropship
 
 // Locker is an interface that allows you to block execution of
 // another process across a set of machines.

@@ -1,23 +1,21 @@
-package hook
+package dropship
 
 import (
 	"errors"
 	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/ChrisMcKenzie/dropship/service"
 )
 
 type ScriptHook struct{}
 
-func (h ScriptHook) Execute(config service.HookConfig, service service.Config) error {
+func (h ScriptHook) Execute(config HookConfig, service Config) error {
 	if c := config["command"]; c != "" {
 
 		// TODO(ChrisMcKenzie): Make this more secure by jailing it.
 		var cwd string
 		if len(service.Artifact) >= 1 {
-			cwd = service.Artifact[0].Destination
+			cwd = service.Artifact["destination"]
 		}
 
 		_, err := executeCommand(c, cwd)

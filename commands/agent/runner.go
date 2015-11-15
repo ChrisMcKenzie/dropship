@@ -1,4 +1,4 @@
-package work
+package agent
 
 import "sync"
 

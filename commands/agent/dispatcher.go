@@ -1,4 +1,4 @@
-package work
+package agent
 
 import (
 	"errors"
@@ -9,11 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ChrisMcKenzie/dropship/hook"
-	"github.com/ChrisMcKenzie/dropship/installer"
-	"github.com/ChrisMcKenzie/dropship/lock"
-	"github.com/ChrisMcKenzie/dropship/service"
-	"github.com/ChrisMcKenzie/dropship/updater"
+	"github.com/ChrisMcKenzie/dropship/dropship"
 	"github.com/hashicorp/consul/api"
 	"github.com/spf13/viper"
 )
@@ -21,8 +17,7 @@ import (
 // Dispatcher is responsible for managing a given services state and
 // sending work to the Runner pool
 type Dispatcher struct {
-	config     service.Config
-	ticker     *time.Ticker
+	config     dropship.Config
 	task       *Runner
 	hash       string
 	duration   time.Duration
@@ -30,7 +25,7 @@ type Dispatcher struct {
 	shutdownCh <-chan struct{}
 }
 
-func NewDispatcher(cfg service.Config, t *Runner, wg *sync.WaitGroup, shutdownCh <-chan struct{}) (*Dispatcher, error) {
+func NewDispatcher(cfg dropship.Config, t *Runner, wg *sync.WaitGroup, shutdownCh <-chan struct{}) (*Dispatcher, error) {
 	w := Dispatcher{
 		config:     cfg,
 		task:       t,
@@ -70,10 +65,9 @@ func (w *Dispatcher) Work() {
 	key := viper.GetString("rackspaceKey")
 	region := viper.GetString("rackspaceRegion")
 
-	u := updater.NewRackspaceUpdater(user, key, region)
-	opts := &updater.Options{w.config.Artifact[0].Bucket, w.config.Artifact[0].Path}
+	u := dropship.NewRackspaceUpdater(user, key, region)
 
-	isOutOfDate, err := u.IsOutdated(w.config.Hash, opts)
+	isOutOfDate, err := u.IsOutdated(w.config.Hash, w.config.Artifact)
 	if err != nil {
 		log.Printf("[ERR]: Unable to check updates for %s %v", w.config.Name, err)
 		return
@@ -82,7 +76,7 @@ func (w *Dispatcher) Work() {
 	if isOutOfDate {
 		if w.config.Sequential {
 			log.Printf("[INF]: Acquiring lock for %s", w.config.Name)
-			l, err := lock.NewConsulLocker(w.config.Name, api.DefaultConfig())
+			l, err := dropship.NewConsulLocker(w.config.Name, api.DefaultConfig())
 			if err != nil {
 				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
 				return
@@ -96,7 +90,7 @@ func (w *Dispatcher) Work() {
 		}
 
 		log.Printf("[INF]: Downloading update for %s...", w.config.Name)
-		fr, meta, err := u.Download(opts)
+		fr, meta, err := u.Download(w.config.Artifact)
 		if err != nil {
 			log.Printf("[ERR]: Unable to download update for %s %v", w.config.Name, err)
 			return
@@ -124,7 +118,7 @@ func (w *Dispatcher) Work() {
 			return
 		}
 
-		filesWritten, err := i.Install(w.config.Artifact[0].Destination, fr)
+		filesWritten, err := i.Install(w.config.Artifact["destination"], fr)
 		if err != nil {
 			log.Printf("[ERR]: Unable to install update for %s %s", w.config.Name, err)
 		}
@@ -163,20 +157,20 @@ func executeCommand(c string) (string, error) {
 	return string(out), err
 }
 
-func getInstaller(contentType string) (installer.Installer, error) {
+func getInstaller(contentType string) (dropship.Installer, error) {
 	switch contentType {
 	case "application/x-gzip", "application/octet-stream":
-		var installer installer.TarInstaller
+		var installer dropship.TarInstaller
 		return installer, nil
 	}
 
 	return nil, errors.New("Unable to determine installation method from file type")
 }
 
-func runHooks(hooks []service.Hook, service service.Config) error {
+func runHooks(hooks []dropship.HookDefinition, service dropship.Config) error {
 	for _, h := range hooks {
 		for hookName, config := range h {
-			hook := hook.GetHookByName(hookName)
+			hook := dropship.GetHookByName(hookName)
 			if hook != nil {
 				log.Printf("[INF]: Executing \"%s\" hook with %+v", hookName, config)
 				err := hook.Execute(config, service)

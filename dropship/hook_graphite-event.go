@@ -1,4 +1,4 @@
-package hook
+package dropship
 
 import (
 	"bytes"
@@ -8,13 +8,11 @@ import (
 	"os"
 	"text/template"
 	"time"
-
-	"github.com/ChrisMcKenzie/dropship/service"
 )
 
 type GraphiteEventHook struct{}
 
-func (h GraphiteEventHook) Execute(config service.HookConfig, service service.Config) error {
+func (h GraphiteEventHook) Execute(config HookConfig, service Config) error {
 	host, ok := config["host"]
 	if !ok {
 		return fmt.Errorf("Graphite Hook: unable to call graphite invalid host provided %v", config["host"])
@@ -60,7 +58,7 @@ func (h GraphiteEventHook) Execute(config service.HookConfig, service service.Co
 	return nil
 }
 
-func parseTemplate(temp string, service service.Config) (string, error) {
+func parseTemplate(temp string, service Config) (string, error) {
 	tmpl, err := template.New("data").Parse(temp)
 	if err != nil {
 		return "", err

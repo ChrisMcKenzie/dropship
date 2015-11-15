@@ -1,10 +1,8 @@
-package hook
+package dropship
 
 import (
 	"os"
 	"testing"
-
-	"github.com/ChrisMcKenzie/dropship/service"
 )
 
 func TestConsulEventHook(t *testing.T) {
@@ -13,12 +11,12 @@ func TestConsulEventHook(t *testing.T) {
 	}
 	hook := ConsulEventHook{}
 
-	err := hook.Execute(map[string]interface{}{
+	err := hook.Execute(HookConfig{
 		"name":    "graphite",
 		"tag":     "blue",
 		"service": "data-service-api-v4",
 		"node":    "api2.data-service-v4.iad",
-	}, service.Config{})
+	}, Config{})
 
 	if err != nil {
 		t.Error(err)

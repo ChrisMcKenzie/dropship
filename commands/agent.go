@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/ChrisMcKenzie/dropship/service"
-	"github.com/ChrisMcKenzie/dropship/work"
+	"github.com/ChrisMcKenzie/dropship/commands/agent"
+	"github.com/ChrisMcKenzie/dropship/dropship"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -15,24 +15,24 @@ import (
 var agentCmd = &cobra.Command{
 	Use:   "agent",
 	Short: "starts automatic checks and update",
-	Run:   agent,
+	Run:   agentC,
 }
 
-func agent(c *cobra.Command, args []string) {
+func agentC(c *cobra.Command, args []string) {
 	InitializeConfig()
 	root := viper.GetString("servicePath")
-	services, err := service.LoadServices(root)
+	services, err := dropship.LoadServices(root)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	t := work.NewRunner(len(services))
+	t := agent.NewRunner(len(services))
 	shutdownCh := make(chan struct{})
 
 	var wg sync.WaitGroup
 	wg.Add(len(services))
 	for _, s := range services {
-		_, err := work.NewDispatcher(s, t, &wg, shutdownCh)
+		_, err := agent.NewDispatcher(s, t, &wg, shutdownCh)
 		if err != nil {
 			log.Fatal(err)
 		}

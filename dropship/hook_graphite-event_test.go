@@ -1,10 +1,8 @@
-package hook
+package dropship
 
 import (
 	"os"
 	"testing"
-
-	"github.com/ChrisMcKenzie/dropship/service"
 )
 
 func TestGraphiteEventHook(t *testing.T) {
@@ -14,12 +12,12 @@ func TestGraphiteEventHook(t *testing.T) {
 
 	var hook GraphiteEventHook
 
-	err := hook.Execute(map[string]interface{}{
+	err := hook.Execute(HookConfig{
 		"host": "http://graphite2.analytics.iad",
 		"what": "deployed by dropship",
 		"tags": "data-service deployment",
 		"data": "dropship is awesome!",
-	}, service.Config{})
+	}, Config{})
 
 	if err != nil {
 		t.Error(err)

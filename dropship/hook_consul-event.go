@@ -1,17 +1,16 @@
-package hook
+package dropship
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 
-	"github.com/ChrisMcKenzie/dropship/service"
 	"github.com/hashicorp/consul/api"
 )
 
 type ConsulEventHook struct{}
 
-func (h ConsulEventHook) Execute(config service.HookConfig, service service.Config) error {
+func (h ConsulEventHook) Execute(config HookConfig, service Config) error {
 	client, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
 		return err

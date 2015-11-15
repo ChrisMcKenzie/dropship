@@ -1,4 +1,4 @@
-package updater
+package dropship
 
 import (
 	"errors"
@@ -34,12 +34,20 @@ func NewRackspaceUpdater(user, key, region string) *RackspaceUpdater {
 	}
 }
 
-func (u *RackspaceUpdater) IsOutdated(hash string, opts *Options) (bool, error) {
+func (u *RackspaceUpdater) IsOutdated(hash string, opts Artifact) (bool, error) {
 	if u.conn == nil {
 		return false, ErrUnableToConnect
 	}
 
-	info, _, err := u.conn.Object(opts.Bucket, opts.Path)
+	if _, ok := opts["bucket"]; !ok {
+		return false, errors.New("Missing field: \"bucket\"")
+	}
+
+	if _, ok := opts["path"]; !ok {
+		return false, errors.New("Missing field: \"path\"")
+	}
+
+	info, _, err := u.conn.Object(opts["bucket"], opts["path"])
 	if err != nil {
 		return false, err
 	}
@@ -51,13 +59,13 @@ func (u *RackspaceUpdater) IsOutdated(hash string, opts *Options) (bool, error) 
 	return true, nil
 }
 
-func (u *RackspaceUpdater) Download(opt *Options) (io.ReadCloser, MetaData, error) {
+func (u *RackspaceUpdater) Download(opt Artifact) (io.ReadCloser, MetaData, error) {
 	var meta MetaData
 	if u.conn == nil {
 		return nil, meta, ErrUnableToConnect
 	}
 
-	r, hdrs, err := u.conn.ObjectOpen(opt.Bucket, opt.Path, true, swift.Headers{})
+	r, hdrs, err := u.conn.ObjectOpen(opt["bucket"], opt["path"], true, swift.Headers{})
 	if err != nil {
 		return nil, meta, err
 	}
