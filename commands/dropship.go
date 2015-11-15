@@ -7,8 +7,9 @@ import (
 
 	"github.com/hashicorp/hcl"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
+
+type RepoConfig map[string]string
 
 type Config struct {
 	ServicePath string `hcl:"service_path"`
@@ -17,6 +18,7 @@ type Config struct {
 		Key    string `hcl:"key"`
 		Region string `hcl:"region"`
 	} `hcl:"rackspace"`
+	Repos map[string]RepoConfig `hcl:"repo"`
 }
 
 var DropshipCmd = &cobra.Command{
@@ -45,22 +47,19 @@ func AddCommands() {
 	DropshipCmd.AddCommand(versionCmd)
 }
 
-func InitializeConfig() {
+func InitializeConfig() *Config {
 	var cfg Config
 	cfgData, err := ioutil.ReadFile(CfgFile)
 	if err != nil {
 		log.Fatalln("Unable to locate Config File. make sure you specify it using the --config flag")
-		return
+		return nil
 	}
 	err = hcl.Decode(&cfg, string(cfgData))
 
 	if err != nil {
 		log.Fatalln("Unable to parse Config File.")
-		return
+		return nil
 	}
 
-	viper.Set("servicePath", cfg.ServicePath)
-	viper.Set("rackspaceUser", cfg.Rackspace.User)
-	viper.Set("rackspaceKey", cfg.Rackspace.Key)
-	viper.Set("rackspaceRegion", cfg.Rackspace.Region)
+	return &cfg
 }

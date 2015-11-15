@@ -22,6 +22,7 @@ type Config struct {
 	RawArtifact   map[string]Artifact `hcl:"artifact,expand"`
 	Artifact      Artifact            `hcl:"-"`
 	Hash          string              `hcl:"hash"`
+	Updater       Updater             `hcl:"-"`
 }
 
 type ServiceFile struct {

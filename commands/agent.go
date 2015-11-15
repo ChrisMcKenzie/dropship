@@ -9,8 +9,9 @@ import (
 	"github.com/ChrisMcKenzie/dropship/commands/agent"
 	"github.com/ChrisMcKenzie/dropship/dropship"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
+
+var updaters map[string]dropship.Updater = make(map[string]dropship.Updater)
 
 var agentCmd = &cobra.Command{
 	Use:   "agent",
@@ -19,20 +20,27 @@ var agentCmd = &cobra.Command{
 }
 
 func agentC(c *cobra.Command, args []string) {
-	InitializeConfig()
-	root := viper.GetString("servicePath")
-	services, err := dropship.LoadServices(root)
+	cfg := InitializeConfig()
+	initializeUpdaters(cfg.Repos)
+
+	services, err := dropship.LoadServices(cfg.ServicePath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	t := agent.NewRunner(len(services))
+	runner := agent.NewRunner(len(services))
 	shutdownCh := make(chan struct{})
 
 	var wg sync.WaitGroup
 	wg.Add(len(services))
-	for _, s := range services {
-		_, err := agent.NewDispatcher(s, t, &wg, shutdownCh)
+	for _, service := range services {
+		log.Printf("[INF]: Starting updater for %s", service.Name)
+		var ok bool
+		service.Updater, ok = updaters[service.Artifact["type"]]
+		if !ok {
+			log.Fatalf("[ERR]: Unable to find updater %s", service.Artifact["type"])
+		}
+		_, err := agent.NewDispatcher(service, runner, &wg, shutdownCh)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -44,5 +52,16 @@ func agentC(c *cobra.Command, args []string) {
 	close(shutdownCh)
 	wg.Wait()
 
-	t.Shutdown()
+	runner.Shutdown()
+}
+
+func initializeUpdaters(configs map[string]RepoConfig) {
+	for name, value := range configs {
+		switch name {
+		case "rackspace":
+			updaters[name] = dropship.NewRackspaceUpdater(value)
+		case "s3":
+			updaters[name] = dropship.NewS3Updater(value)
+		}
+	}
 }

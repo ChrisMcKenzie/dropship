@@ -11,7 +11,6 @@ import (
 
 	"github.com/ChrisMcKenzie/dropship/dropship"
 	"github.com/hashicorp/consul/api"
-	"github.com/spf13/viper"
 )
 
 // Dispatcher is responsible for managing a given services state and
@@ -61,11 +60,8 @@ func (w *Dispatcher) start() {
 
 func (w *Dispatcher) Work() {
 	log.Printf("[INF]: Starting Update check for %s...", w.config.Name)
-	user := viper.GetString("rackspaceUser")
-	key := viper.GetString("rackspaceKey")
-	region := viper.GetString("rackspaceRegion")
 
-	u := dropship.NewRackspaceUpdater(user, key, region)
+	u := w.config.Updater
 
 	isOutOfDate, err := u.IsOutdated(w.config.Hash, w.config.Artifact)
 	if err != nil {
