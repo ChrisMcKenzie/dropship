@@ -95,7 +95,7 @@ func TestRackspaceUpdaterIsOutdated(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		result, err := updater.IsOutdated(test.hash, UpdateConfig{
+		result, err := updater.IsOutdated(test.hash, Artifact{
 			"bucket": Container,
 			"path":   "test.txt",
 		})
@@ -109,7 +109,7 @@ func TestRackspaceUpdaterIsOutdated(t *testing.T) {
 	}
 
 	// negative non-existing file error
-	_, err := updater.IsOutdated("", UpdateConfig{
+	_, err := updater.IsOutdated("", Artifact{
 		"bucket": Container,
 		"path":   "test.txt",
 	})
@@ -119,7 +119,7 @@ func TestRackspaceUpdaterIsOutdated(t *testing.T) {
 
 	// negative generic error testing.
 	badUpdater := &RackspaceUpdater{}
-	_, err = badUpdater.IsOutdated("", UpdateConfig{})
+	_, err = badUpdater.IsOutdated("", Artifact{})
 	if err == nil {
 		t.Error("IsOutdated: Expected an error with invalid credentials.")
 	}
@@ -130,13 +130,13 @@ func TestRackspaceUpdaterDownload(t *testing.T) {
 		t.Skip("Skipping in CI")
 	}
 	cases := []struct {
-		Options  UpdateConfig
+		Options  Artifact
 		Value    string
 		MetaData MetaData
 		Error    error
 	}{
 		{
-			Options: UpdateConfig{
+			Options: Artifact{
 				"bucket": Container,
 				"path":   "test.txt",
 			},
@@ -145,7 +145,7 @@ func TestRackspaceUpdaterDownload(t *testing.T) {
 			Value:    content,
 		},
 		{
-			Options: UpdateConfig{
+			Options: Artifact{
 				"bucket": Container,
 				"path":   "no-file.txt",
 			},
@@ -179,7 +179,7 @@ func TestRackspaceUpdaterDownload(t *testing.T) {
 
 	// negative generic error testing.
 	badUpdater := &RackspaceUpdater{}
-	_, _, err := badUpdater.Download(UpdateConfig{})
+	_, _, err := badUpdater.Download(Artifact{})
 	if err == nil {
 		t.Error("IsOutdated: Expected an error with invalid credentials.")
 	}
