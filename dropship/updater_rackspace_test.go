@@ -11,35 +11,33 @@ import (
 )
 
 var (
-	user, key, region string
-	content           string = "hello world\r\n"
-	hash              string = "a0f2a3c1dcd5b1cac71bf0c03f2ff1bd"
-	conn              *swift.Connection
-	updater           Updater
+	config  Artifact
+	content string = "hello world\r\n"
+	hash    string = "a0f2a3c1dcd5b1cac71bf0c03f2ff1bd"
+	conn    *swift.Connection
+	updater Updater
 )
 
 const Container = "test-container"
 
 func setup() error {
-	user = os.Getenv("RACKSPACE_USER")
-	key = os.Getenv("RACKSPACE_KEY")
-	region = os.Getenv("RACKSPACE_REGION")
-	if user == "" || key == "" || region == "" {
-		return fmt.Errorf("user or key are required")
-	}
+	config = make(Artifact)
+	config["user"] = os.Getenv("RACKSPACE_USER")
+	config["key"] = os.Getenv("RACKSPACE_KEY")
+	config["region"] = os.Getenv("RACKSPACE_REGION")
 
 	conn = &swift.Connection{
 		// This should be your username
-		UserName: user,
+		UserName: config["user"],
 		// This should be your api key
-		ApiKey: key,
+		ApiKey: config["key"],
 		// This should be a v1 auth url, eg
 		//  Rackspace US        https://auth.api.rackspacecloud.com/v1.0
 		//  Rackspace UK        https://lon.auth.api.rackspacecloud.com/v1.0
 		//  Memset Memstore UK  https://auth.storage.memset.com/v1.0
 		AuthUrl: "https://auth.api.rackspacecloud.com/v1.0",
 		// Region to use - default is use first region if unset
-		Region: region,
+		Region: config["region"],
 		// Name of the tenant - this is likely your username
 	}
 
@@ -71,7 +69,7 @@ func updaterSetup(t *testing.T) {
 		t.Fail()
 	}
 
-	updater = NewRackspaceUpdater(user, key, region)
+	updater = NewRackspaceUpdater(config)
 }
 
 func TestRackspaceUpdaterIsOutdated(t *testing.T) {
