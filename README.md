@@ -34,10 +34,17 @@ service_path = "/etc/dropship.d/services"
 
 # Rackspace Repo Config
 # =====================
-rackspace {
+repo "rackspace" {
   user = "<your-rackspace-user>"
   key = "<your-rackspace-key>"
   region = "<rackspace-region>"
+}
+
+repo "s3" {
+  accessKey = "<your-s3-key>"
+  secret = "<your-s3-secret>"
+  name = "us-west-1"
+  endpoint = "https://s3-us-west-1.amazonaws.com"
 }
 ```
 
@@ -91,7 +98,7 @@ service "my-service" {
 ## Roadmap
 
 - [X] Hooks
-- [ ] Support for Amazon S3, and FTP
+- [X] Support for Amazon S3
 - [ ] Support for different file types deb, rpm, file _(currently only tar.gz)_
 - [ ] Reporting system
 - [ ] Redis, etcd for semaphore
