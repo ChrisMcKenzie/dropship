@@ -95,6 +95,13 @@ service "my-service" {
 }
 ```
 
+## Building 
+
+- install go 1.5.1
+- clone repo
+- run `go get ./...`
+- run `go build -o dropship main.go`
+
 ## Roadmap
 
 - [X] Hooks
