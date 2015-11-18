@@ -21,6 +21,11 @@ var agentCmd = &cobra.Command{
 
 func agentC(c *cobra.Command, args []string) {
 	cfg := InitializeConfig()
+
+	if cfg.Rackspace != nil {
+		log.Println("[WARN]: The Rackspace config item has been deprecated and will be removed in future versions. please use the repo directive. ")
+		updaters["rackspace"] = dropship.NewRackspaceUpdater(cfg.Rackspace)
+	}
 	initializeUpdaters(cfg.Repos)
 
 	services, err := dropship.LoadServices(cfg.ServicePath)
