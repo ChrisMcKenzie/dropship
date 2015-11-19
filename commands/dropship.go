@@ -10,11 +10,13 @@ import (
 )
 
 type RepoConfig map[string]string
+type LockConfig map[string]string
 
 type Config struct {
 	ServicePath string                `hcl:"service_path"`
 	Rackspace   map[string]string     `hcl:"rackspace"`
 	Repos       map[string]RepoConfig `hcl:"repo"`
+	Locks       map[string]LockConfig `hcl:"lock"`
 }
 
 var DropshipCmd = &cobra.Command{

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/ChrisMcKenzie/dropship/dropship"
-	"github.com/hashicorp/consul/api"
 )
 
 // Dispatcher is responsible for managing a given services state and
@@ -72,7 +71,7 @@ func (w *Dispatcher) Work() {
 	if isOutOfDate {
 		if w.config.Sequential {
 			log.Printf("[INF]: Acquiring lock for %s", w.config.Name)
-			l, err := dropship.NewConsulLocker(w.config.Name, api.DefaultConfig())
+			l := w.config.Locker
 			if err != nil {
 				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
 				return

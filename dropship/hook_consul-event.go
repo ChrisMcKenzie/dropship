@@ -8,10 +8,17 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-type ConsulEventHook struct{}
+type ConsulEventHook struct {
+	config *api.Config
+}
+
+func NewConsulEventHook(cfg map[string]string) ConsulEventHook {
+	config := initializeConsulConfig(cfg)
+	return ConsulEventHook{config}
+}
 
 func (h ConsulEventHook) Execute(config HookConfig, service Config) error {
-	client, err := api.NewClient(api.DefaultConfig())
+	client, err := api.NewClient(h.config)
 	if err != nil {
 		return err
 	}

@@ -23,6 +23,7 @@ type Config struct {
 	Artifact      Artifact            `hcl:"-"`
 	Hash          string              `hcl:"hash"`
 	Updater       Updater             `hcl:"-"`
+	Locker        Locker              `hcl:"-"`
 }
 
 type ServiceFile struct {

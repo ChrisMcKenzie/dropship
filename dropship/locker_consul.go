@@ -1,8 +1,10 @@
 package dropship
 
 import (
+	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/hashicorp/consul/api"
 )
@@ -13,14 +15,16 @@ type ConsulLocker struct {
 	semaphore *api.Semaphore
 }
 
-func NewConsulLocker(prefix string, config *api.Config) (*ConsulLocker, error) {
+func NewConsulLocker(cfg map[string]string) (*ConsulLocker, error) {
+	config := initializeConsulConfig(cfg)
+
 	client, err := api.NewClient(config)
 	if err != nil {
 		return nil, err
 	}
 	name, _ := os.Hostname()
 	s, err := client.SemaphoreOpts(&api.SemaphoreOptions{
-		Prefix: filepath.Join("dropship/services/", prefix),
+		Prefix: filepath.Join("dropship/services/", cfg["prefix"]),
 		Limit:  1,
 
 		SessionName: name,
@@ -34,10 +38,47 @@ func NewConsulLocker(prefix string, config *api.Config) (*ConsulLocker, error) {
 	return l, nil
 }
 
-func (l *ConsulLocker) Acquire(shutdownCh <-chan struct{}) (<-chan struct{}, error) {
+func (l ConsulLocker) Acquire(shutdownCh <-chan struct{}) (<-chan struct{}, error) {
 	return l.semaphore.Acquire(shutdownCh)
 }
 
-func (l *ConsulLocker) Release() error {
+func (l ConsulLocker) Release() error {
 	return l.semaphore.Release()
+}
+
+func initializeConsulConfig(cfg map[string]string) *api.Config {
+	config := api.DefaultConfig()
+
+	if addr, ok := cfg["address"]; ok {
+		config.Address = addr
+	}
+
+	if token, ok := cfg["token"]; ok {
+		config.Token = token
+	}
+
+	if user, ok := cfg["user"]; ok {
+		var password string
+		if pass, ok := cfg["password"]; ok {
+			password = pass
+		}
+
+		config.HttpAuth = &api.HttpBasicAuth{
+			Username: user,
+			Password: password,
+		}
+	}
+
+	if ssl, ok := cfg["useSSL"]; ok {
+		enabled, err := strconv.ParseBool(ssl)
+		if err != nil {
+			log.Printf("[ERR]: Could not parse consul useSSL: %s", err)
+		}
+
+		if enabled {
+			config.Scheme = "https"
+		}
+	}
+
+	return config
 }
