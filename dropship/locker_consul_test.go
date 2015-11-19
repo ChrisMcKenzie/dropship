@@ -4,8 +4,6 @@ import (
 	"os"
 	"testing"
 	"time"
-
-	"github.com/hashicorp/consul/api"
 )
 
 var (
@@ -17,7 +15,9 @@ func TestMain(t *testing.T) {
 	if os.Getenv("CI") == "true" {
 		t.Skip("Skipping in CI")
 	}
-	locker, err = NewConsulLocker("dropship", api.DefaultConfig())
+	locker, err = NewConsulLocker(map[string]string{
+		"prefix": "dropship",
+	})
 	if err != nil {
 		t.Error(err)
 		t.Fail()
