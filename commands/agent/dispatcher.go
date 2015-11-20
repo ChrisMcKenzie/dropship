@@ -107,7 +107,12 @@ func (w *Dispatcher) Work() {
 			log.Printf("[ERR]: Unable to execute beforeHooks. %v", err)
 		}
 
-		i, err := getInstaller(meta.ContentType)
+		contentType := meta.ContentType
+		if ct, ok := w.config.Artifact["content-type"]; ok {
+			contentType = ct
+		}
+
+		i, err := getInstaller(contentType)
 		if err != nil {
 			log.Printf("[ERR]: %s for %s", w.config.Name, err)
 			return
@@ -156,6 +161,9 @@ func getInstaller(contentType string) (dropship.Installer, error) {
 	switch contentType {
 	case "application/x-gzip", "application/octet-stream":
 		var installer dropship.TarInstaller
+		return installer, nil
+	default:
+		var installer dropship.FileInstaller
 		return installer, nil
 	}
 
