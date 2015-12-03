@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Installer is an interface that allows different methods of writing
@@ -13,7 +14,7 @@ type Installer interface {
 }
 
 func moveOld(dest string) error {
-	return os.Rename(dest, filepath.Join(dest, ".old"))
+	return os.Rename(dest, strings.Join([]string{dest, "old"}, "."))
 }
 
 func cleanup(dest string, err error) error {

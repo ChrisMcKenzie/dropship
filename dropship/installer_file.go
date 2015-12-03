@@ -10,9 +10,13 @@ import (
 type FileInstaller struct{}
 
 func (i FileInstaller) Install(dest string, f io.Reader) (count int, err error) {
-	err = moveOld(dest)
-	if err != nil {
-		return 0, err
+	// if file exists lets move it so we can recover on failure
+	if _, err := os.Stat(dest); err == nil {
+		err = moveOld(dest)
+		if err != nil {
+			return 0, err
+		}
+		defer cleanup(dest, err)
 	}
 
 	if f == nil {
