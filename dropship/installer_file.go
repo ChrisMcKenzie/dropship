@@ -10,7 +10,11 @@ import (
 type FileInstaller struct{}
 
 func (i FileInstaller) Install(dest string, f io.Reader) (count int, err error) {
-	moveOld(dest)
+	err = moveOld(dest)
+	if err != nil {
+		return 0, err
+	}
+
 	if f == nil {
 		return count, ErrNilReader
 	}
