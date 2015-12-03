@@ -32,3 +32,5 @@ bin
 
 config.json
 *.deb
+
+dist/

@@ -50,8 +50,6 @@ function main() {
   release_package
 
   upload_content
-
-  rm $file
 }
 
 function init_curl() {
