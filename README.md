@@ -106,6 +106,6 @@ service "my-service" {
 
 - [X] Hooks
 - [X] Support for Amazon S3
-- [ ] Support for different file types deb, rpm, file _(currently only tar.gz)_
+- [ ] Support for different file types docker _(currently only tar.gz, and simple files)_
 - [ ] Reporting system
 - [ ] Redis, etcd for semaphore
