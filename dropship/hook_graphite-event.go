@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"text/template"
-	"time"
 )
 
 type GraphiteEventHook struct{}
@@ -17,9 +17,6 @@ func (h GraphiteEventHook) Execute(config HookConfig, service Config) error {
 	if !ok {
 		return fmt.Errorf("Graphite Hook: unable to call graphite invalid host provided %v", config["host"])
 	}
-	delete(config, "host")
-
-	config["when"] = string(time.Now().Unix())
 
 	if w, ok := config["what"]; ok {
 		what, err := parseTemplate(w, service)
@@ -52,7 +49,8 @@ func (h GraphiteEventHook) Execute(config HookConfig, service Config) error {
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Graphite Hook: unable to post to events. responded with %d", resp.StatusCode)
+		body, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf("Graphite Hook: unable to post to events. responded with %d with %s", resp.StatusCode, body)
 	}
 
 	return nil
