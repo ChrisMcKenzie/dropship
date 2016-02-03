@@ -55,7 +55,7 @@ func agentC(c *cobra.Command, args []string) {
 		service.Locker, ok = lockers["consul"]
 		if !ok {
 			var err error
-			service.Locker, err = dropship.NewConsulLocker(map[string]string{})
+			service.Locker, err = dropship.NewConsulLocker(cfg.Locks["consul"])
 			if err != nil {
 				log.Fatalf("[ERR]: Unable to initilize locker: %s", err)
 			}

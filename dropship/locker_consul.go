@@ -23,9 +23,17 @@ func NewConsulLocker(cfg map[string]string) (*ConsulLocker, error) {
 		return nil, err
 	}
 	name, _ := os.Hostname()
+
+	var ttl = api.DefaultSemaphoreSessionTTL
+	if cfg["ttl"] != "" {
+		ttl = cfg["ttl"]
+	}
+
 	s, err := client.SemaphoreOpts(&api.SemaphoreOptions{
 		Prefix: filepath.Join("dropship/services/", cfg["prefix"]),
 		Limit:  1,
+
+		SessionTTL: ttl,
 
 		SessionName: name,
 	})
