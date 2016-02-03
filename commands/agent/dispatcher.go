@@ -145,6 +145,15 @@ func (w *Dispatcher) Work() {
 		if err != nil {
 			log.Printf("[ERR]: Unable to execute beforeHooks. %v", err)
 		}
+
+		if w.config.UpdateTTL != "" {
+			log.Printf("[INF]: Waiting %s before releasing lock and allowing next deployment.", w.config.UpdateTTL)
+			ttl, err := time.ParseDuration(w.config.UpdateTTL)
+			if err != nil {
+				log.Printf("[ERR]: Failed to parse updateTTL make sure it is a valid duration in seconds")
+			}
+			<-time.After(ttl)
+		}
 	} else {
 		log.Printf("[INF]: %s is up to date", w.config.Name)
 	}

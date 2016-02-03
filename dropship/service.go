@@ -14,6 +14,7 @@ type HookDefinition map[string]HookConfig
 type Config struct {
 	Name          string              `hcl:",key"`
 	CheckInterval string              `hcl:"checkInterval"`
+	UpdateTTL     string              `hcl:"updateTTL"`
 	PostCommand   string              `hcl:"postCommand"`
 	PreCommand    string              `hcl:"preCommand"`
 	BeforeHooks   []HookDefinition    `hcl:"before"`

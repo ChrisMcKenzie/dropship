@@ -3,7 +3,7 @@ box: golang:1.5-wheezy
 build:
   steps:
      - wercker/setup-go-workspace:
-        package-dir: github.com/chrismckenzie/dropship
+        package-dir: github.com/ChrisMcKenzie/dropship
      - script:
        name: Test build
        code: |
