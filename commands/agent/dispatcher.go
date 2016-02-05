@@ -168,7 +168,7 @@ func executeCommand(c string) (string, error) {
 
 func getInstaller(contentType string) (dropship.Installer, error) {
 	switch contentType {
-	case "application/x-gzip", "application/octet-stream":
+	case "application/x-gzip", "application/octet-stream", "application/gzip":
 		var installer dropship.TarInstaller
 		return installer, nil
 	default:
