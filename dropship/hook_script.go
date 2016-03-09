@@ -2,6 +2,7 @@ package dropship
 
 import (
 	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -18,7 +19,8 @@ func (h ScriptHook) Execute(config HookConfig, service Config) error {
 			cwd = service.Artifact["destination"]
 		}
 
-		_, err := executeCommand(c, cwd)
+		out, err := executeCommand(c, cwd)
+		log.Printf("[INFO]: %s", out)
 		return err
 	}
 	return errors.New("Script: exiting no command was given")
