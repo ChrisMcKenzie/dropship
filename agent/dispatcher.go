@@ -17,11 +17,10 @@ package agent
 import (
 	"errors"
 	"fmt"
-	"log"
-	"os/exec"
-	"strings"
 	"sync"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/ChrisMcKenzie/dropship/dropship"
 )
@@ -61,7 +60,7 @@ func (w *Dispatcher) start() {
 		select {
 		case _, ok := <-w.shutdownCh:
 			if !ok {
-				log.Printf("Shutting down dispatcher for %s", w.config.Name)
+				log.Infof("Shutting down dispatcher for %s", w.config.Name)
 				w.wg.Done()
 				return
 			}
@@ -72,53 +71,43 @@ func (w *Dispatcher) start() {
 }
 
 func (w *Dispatcher) Work() {
-	log.Printf("[INF]: Starting Update check for %s...", w.config.Name)
+	log.Infof("Starting Update check for %s...", w.config.Name)
 
 	u := w.config.Updater
 
 	isOutOfDate, err := u.IsOutdated(w.config.Hash, w.config.Artifact)
 	if err != nil {
-		log.Printf("[ERR]: Unable to check updates for %s %v", w.config.Name, err)
+		log.Errorf("Unable to check updates for %s %v", w.config.Name, err)
 		return
 	}
 
 	if isOutOfDate {
 		if w.config.Sequential {
-			log.Printf("[INF]: Acquiring lock for %s", w.config.Name)
+			log.Infof("Acquiring lock for %s", w.config.Name)
 			l := w.config.Locker
 			if err != nil {
-				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
+				log.Errorf("Unable to retreive update lock. %v", err)
 				return
 			}
 			_, err = l.Acquire(w.shutdownCh)
 			if err != nil {
-				log.Printf("[ERR]: Unable to retreive update lock. %v", err)
+				log.Errorf("Unable to retreive update lock. %v", err)
 				return
 			}
 			defer l.Release()
 		}
 
-		log.Printf("[INF]: Downloading update for %s...", w.config.Name)
+		log.Infof("Downloading update for %s...", w.config.Name)
 		fr, meta, err := u.Download(w.config.Artifact)
 		if err != nil {
-			log.Printf("[ERR]: Unable to download update for %s %v", w.config.Name, err)
+			log.Errorf("Unable to download update for %s %v", w.config.Name, err)
 			return
 		}
 
 		// Deprecated
-		if w.config.PreCommand != "" {
-			log.Printf("[WARN]: preCommand has been deprecated.")
-			res, err := executeCommand(w.config.PreCommand)
-			if err != nil {
-				log.Printf("[ERR]: Unable to execute preCommand. %v", err)
-			} else {
-				log.Printf("[INF]: preCommand executed successfully. %v", res)
-			}
-		}
-
 		err = runHooks(w.config.BeforeHooks, w.config)
 		if err != nil {
-			log.Printf("[ERR]: Unable to execute beforeHooks. %v", err)
+			log.Errorf("Unable to execute beforeHooks. %v", err)
 		}
 
 		contentType := meta.ContentType
@@ -128,56 +117,37 @@ func (w *Dispatcher) Work() {
 
 		i, err := getInstaller(contentType)
 		if err != nil {
-			log.Printf("[ERR]: %s for %s", w.config.Name, err)
+			log.Errorf("%s for %s", w.config.Name, err)
 			return
 		}
 
 		filesWritten, err := i.Install(w.config.Artifact["destination"], fr)
 		if err != nil {
-			log.Printf("[ERR]: Unable to install update for %s %s", w.config.Name, err)
+			log.Errorf("Unable to install update for %s %s", w.config.Name, err)
 		}
 
-		// Deprecated
-		if w.config.PostCommand != "" {
-			log.Printf("[WARN]: postCommand has been deprecated.")
-			defer func() {
-				res, err := executeCommand(w.config.PostCommand)
-				if err != nil {
-					log.Printf("[ERR]: Unable to execute postCommand. %v", err)
-				} else {
-					log.Printf("[INF]: postCommand executed successfully. %v", res)
-				}
-			}()
-		}
-
-		log.Printf("[INF]: Update for %s installed successfully. [hash: %s] [files written: %d]", w.config.Name, meta.Hash, filesWritten)
+		log.Infof("Update for %s installed successfully. [hash: %s] [files written: %d]", w.config.Name, meta.Hash, filesWritten)
 		// TODO(ChrisMcKenzie): hashes should be stored somewhere more
 		// permanent.
+		// This should be sent to the manager
 		w.config.Hash = meta.Hash
 
 		err = runHooks(w.config.AfterHooks, w.config)
 		if err != nil {
-			log.Printf("[ERR]: Unable to execute beforeHooks. %v", err)
+			log.Errorf("Unable to execute beforeHooks. %v", err)
 		}
 
 		if w.config.UpdateTTL != "" {
-			log.Printf("[INF]: Waiting %s before releasing lock and allowing next deployment.", w.config.UpdateTTL)
+			log.Infof("Waiting %s before releasing lock and allowing next deployment.", w.config.UpdateTTL)
 			ttl, err := time.ParseDuration(w.config.UpdateTTL)
 			if err != nil {
-				log.Printf("[ERR]: Failed to parse updateTTL make sure it is a valid duration in seconds")
+				log.Errorf("Failed to parse updateTTL make sure it is a valid duration in seconds")
 			}
 			<-time.After(ttl)
 		}
 	} else {
-		log.Printf("[INF]: %s is up to date", w.config.Name)
+		log.Infof("%s is up to date", w.config.Name)
 	}
-}
-
-// Deprecated
-func executeCommand(c string) (string, error) {
-	cmd := strings.Fields(c)
-	out, err := exec.Command(cmd[0], cmd[1:]...).Output()
-	return string(out), err
 }
 
 func getInstaller(contentType string) (dropship.Installer, error) {
@@ -198,10 +168,10 @@ func runHooks(hooks []dropship.HookDefinition, service dropship.Config) error {
 		for hookName, config := range h {
 			hook := dropship.GetHookByName(hookName)
 			if hook != nil {
-				log.Printf("[INF]: Executing \"%s\" hook with %+v", hookName, config)
+				log.Infof("Executing \"%s\" hook with %+v", hookName, config)
 				err := hook.Execute(config, service)
 				if err != nil {
-					log.Printf("[ERR]: Unable to execute \"%s\" hook %v", hookName, err)
+					log.Error("Unable to execute \"%s\" hook %v", hookName, err)
 				}
 			}
 		}

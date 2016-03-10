@@ -32,6 +32,7 @@ func newRouter() *mux.Router {
 	for _, route := range routes {
 		var handler http.Handler
 
+		// Wrap routes in log decorator
 		handler = route.Handler
 		handler = logger(handler, route.Name)
 

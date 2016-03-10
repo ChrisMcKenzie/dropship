@@ -16,11 +16,18 @@ package manager
 
 import (
 	"github.com/ChrisMcKenzie/dropship/dropship"
+	log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
 )
 
 type RpcServiceServer struct{}
 
 func (s RpcServiceServer) RegisterService(ctx context.Context, svc *dropship.Service) (*dropship.RegisterResponse, error) {
-	return nil, nil
+	log.Infof("RegisterService Request Received for %s", svc.Name)
+
+	// do stuff here
+
+	return &dropship.RegisterResponse{
+		Success: true,
+	}, nil
 }

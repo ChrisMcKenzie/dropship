@@ -27,6 +27,7 @@ type RepoConfig map[string]string
 type LockConfig map[string]string
 
 type Config struct {
+	ManagerURL  string                `hcl:"manager_url"`
 	ServicePath string                `hcl:"service_path"`
 	Rackspace   map[string]string     `hcl:"rackspace"`
 	Repos       map[string]RepoConfig `hcl:"repo"`

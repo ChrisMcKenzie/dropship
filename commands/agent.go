@@ -15,14 +15,16 @@
 package commands
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"sync"
 
 	"github.com/ChrisMcKenzie/dropship/agent"
 	"github.com/ChrisMcKenzie/dropship/dropship"
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 var updaters map[string]dropship.Updater = make(map[string]dropship.Updater)
@@ -37,8 +39,16 @@ var agentCmd = &cobra.Command{
 func agentC(c *cobra.Command, args []string) {
 	cfg := InitializeConfig()
 
+	conn, err := grpc.Dial(cfg.ManagerURL, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer conn.Close()
+
+	client := dropship.NewRpcServiceClient(conn)
+
 	if cfg.Rackspace != nil {
-		log.Println("[WARN]: The Rackspace config item has been deprecated and will be removed in future versions. please use the repo directive. ")
+		log.Warn("The Rackspace config item has been deprecated and will be removed in future versions. please use the repo directive. ")
 		updaters["rackspace"] = dropship.NewRackspaceUpdater(cfg.Rackspace)
 	}
 	initializeUpdaters(cfg.Repos)
@@ -46,7 +56,7 @@ func agentC(c *cobra.Command, args []string) {
 
 	services, err := dropship.LoadServices(cfg.ServicePath)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
 	runner := agent.NewRunner(len(services))
@@ -55,11 +65,16 @@ func agentC(c *cobra.Command, args []string) {
 	var wg sync.WaitGroup
 	wg.Add(len(services))
 	for _, service := range services {
-		log.Printf("[INF]: Starting updater for %s", service.Name)
+		log.Infof("Starting updater for %s", service.Name)
 		var ok bool
 		service.Updater, ok = updaters[service.Artifact["type"]]
 		if !ok {
-			log.Fatalf("[ERR]: Unable to find updater %s", service.Artifact["type"])
+			log.Errorf("Unable to find updater %s", service.Artifact["type"])
+		}
+
+		_, err := client.RegisterService(context.Background(), &dropship.Service{service.Name})
+		if err != nil {
+			log.Error(err)
 		}
 
 		// Try and use consul config but nothing exists use default consul config.
@@ -71,13 +86,13 @@ func agentC(c *cobra.Command, args []string) {
 			var err error
 			service.Locker, err = dropship.NewConsulLocker(cfg.Locks["consul"])
 			if err != nil {
-				log.Fatalf("[ERR]: Unable to initilize locker: %s", err)
+				log.Errorf("Unable to initilize locker: %s", err)
 			}
 		}
 
-		_, err := agent.NewDispatcher(service, runner, &wg, shutdownCh)
+		_, err = agent.NewDispatcher(service, runner, &wg, shutdownCh)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		}
 	}
 

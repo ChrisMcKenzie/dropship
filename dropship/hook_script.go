@@ -16,10 +16,11 @@ package dropship
 
 import (
 	"errors"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type ScriptHook struct{}
@@ -34,7 +35,7 @@ func (h ScriptHook) Execute(config HookConfig, service Config) error {
 		}
 
 		out, err := executeCommand(c, cwd)
-		log.Printf("[INFO]: %s", out)
+		log.Infof("%s", out)
 		return err
 	}
 	return errors.New("Script: exiting no command was given")
