@@ -1,3 +1,17 @@
+// Copyright (c) 2016 "ChrisMcKenzie"
+// This file is part of Dropship.
+//
+// Dropship is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License v3 as
+// published by the Free Software Foundation
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
 package commands
 
 import (
@@ -22,15 +36,17 @@ type Config struct {
 var DropshipCmd = &cobra.Command{
 	Use:   "dropship",
 	Short: "A tool for automated and distributed artifact deployment",
-	Long: `Dropship allows servers to automatically check, download, and install
-artifacts from a file repository in a distributed fashion.
-	`,
+	Long: `
+
+Dropship is a distrubuted deployment system and interface
+allowing users to download build artifacts from any sort of cdn and 
+install it on any number of hosts in a distributed way.`,
 }
 
 var CfgFile string
 
 func init() {
-	DropshipCmd.PersistentFlags().StringVar(&CfgFile, "config", "/etc/dropship.d/dropship.hcl", "config file (default is path/config.yaml|json|toml)")
+	DropshipCmd.PersistentFlags().StringVar(&CfgFile, "config", "/etc/dropship.d/dropship.hcl", "config file")
 }
 
 func Execute() {
@@ -43,6 +59,7 @@ func Execute() {
 func AddCommands() {
 	DropshipCmd.AddCommand(agentCmd)
 	DropshipCmd.AddCommand(versionCmd)
+	DropshipCmd.AddCommand(managerCmd)
 }
 
 func InitializeConfig() *Config {

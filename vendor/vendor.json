@@ -1,0 +1,208 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "3cb248e9df77413d58a6330dde84236d04c197d5",
+			"revisionTime": "2015-07-22T11:29:20-04:00"
+		},
+		{
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "b9504f23731d0b61ccfff7370a161d6c857ca00d",
+			"revisionTime": "2016-03-09T11:48:00+11:00"
+		},
+		{
+			"path": "github.com/hashicorp/consul/api",
+			"revision": "4d5b13f417a35dbad0ab59d12807ca67d0f4413c",
+			"revisionTime": "2016-02-18T15:50:12-08:00"
+		},
+		{
+			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/go-cleanhttp",
+			"path": "github.com/hashicorp/go-cleanhttp",
+			"revision": "4d5b13f417a35dbad0ab59d12807ca67d0f4413c",
+			"revisionTime": "2016-02-18T15:50:12-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/ast",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/parser",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/scanner",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/strconv",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/token",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/json/parser",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/json/scanner",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/json/token",
+			"revision": "578dd9746824a54637686b51a41bad457a56bcef",
+			"revisionTime": "2016-01-19T12:27:37-08:00"
+		},
+		{
+			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/serf/coordinate",
+			"path": "github.com/hashicorp/serf/coordinate",
+			"revision": "4d5b13f417a35dbad0ab59d12807ca67d0f4413c",
+			"revisionTime": "2016-02-18T15:50:12-08:00"
+		},
+		{
+			"path": "github.com/inconshreveable/mousetrap",
+			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",
+			"revisionTime": "2014-10-17T13:07:13-07:00"
+		},
+		{
+			"path": "github.com/labstack/gommon/color",
+			"revision": "bfff5bf04688a4048a5cb4dd3b3f0697caaad19c",
+			"revisionTime": "2016-02-09T20:06:39-08:00"
+		},
+		{
+			"path": "github.com/labstack/gommon/log",
+			"revision": "bfff5bf04688a4048a5cb4dd3b3f0697caaad19c",
+			"revisionTime": "2016-02-09T20:06:39-08:00"
+		},
+		{
+			"path": "github.com/mattn/go-colorable",
+			"revision": "40e4aedc8fabf8c23e040057540867186712faa5",
+			"revisionTime": "2015-06-26T00:46:42+09:00"
+		},
+		{
+			"path": "github.com/mattn/go-isatty",
+			"revision": "56b76bdf51f7708750eac80fa38b952bb9f32639",
+			"revisionTime": "2015-12-11T09:06:21+09:00"
+		},
+		{
+			"path": "github.com/mitchellh/goamz/aws",
+			"revision": "caaaea8b30ee15616494ee68abd5d8ebbbef05cf",
+			"revisionTime": "2015-03-17T10:43:35-07:00"
+		},
+		{
+			"path": "github.com/mitchellh/goamz/s3",
+			"revision": "caaaea8b30ee15616494ee68abd5d8ebbbef05cf",
+			"revisionTime": "2015-03-17T10:43:35-07:00"
+		},
+		{
+			"path": "github.com/ncw/swift",
+			"revision": "eb694f713bdbdccfe29612191eb6b79f6ed19b8b",
+			"revisionTime": "2015-11-08T17:52:13Z"
+		},
+		{
+			"path": "github.com/spf13/cobra",
+			"revision": "8e91712f174ced10270cf66615e0a9127e7c4de5",
+			"revisionTime": "2016-01-16T22:09:38-05:00"
+		},
+		{
+			"path": "github.com/spf13/pflag",
+			"revision": "7f60f83a2c81bc3c3c0d5297f61ddfa68da9d3b7",
+			"revisionTime": "2015-10-24T12:54:09+02:00"
+		},
+		{
+			"path": "github.com/vaughan0/go-ini",
+			"revision": "a98ad7ee00ec53921f08832bc06ecf7fd600e6a1",
+			"revisionTime": "2013-09-23T16:52:12+02:00"
+		},
+		{
+			"path": "golang.org/x/net/context",
+			"revision": "3e5cd1ed149001198e582f9d3f5bfd564cde2896",
+			"revisionTime": "2016-03-08T20:16:50-06:00"
+		},
+		{
+			"path": "golang.org/x/net/http2",
+			"revision": "3e5cd1ed149001198e582f9d3f5bfd564cde2896",
+			"revisionTime": "2016-03-08T20:16:50-06:00"
+		},
+		{
+			"path": "golang.org/x/net/http2/hpack",
+			"revision": "3e5cd1ed149001198e582f9d3f5bfd564cde2896",
+			"revisionTime": "2016-03-08T20:16:50-06:00"
+		},
+		{
+			"path": "golang.org/x/net/internal/timeseries",
+			"revision": "3e5cd1ed149001198e582f9d3f5bfd564cde2896",
+			"revisionTime": "2016-03-08T20:16:50-06:00"
+		},
+		{
+			"path": "golang.org/x/net/trace",
+			"revision": "3e5cd1ed149001198e582f9d3f5bfd564cde2896",
+			"revisionTime": "2016-03-08T20:16:50-06:00"
+		},
+		{
+			"path": "golang.org/x/sys/unix",
+			"revision": "833a04a10549a95dc34458c195cbad61bbb6cb4d",
+			"revisionTime": "2015-12-10T17:34:15-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc/codes",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc/credentials",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc/grpclog",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc/internal",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc/metadata",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc/naming",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc/peer",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		},
+		{
+			"path": "google.golang.org/grpc/transport",
+			"revision": "b1439a2743c5ca8e5606e2934bbecd0b0aa62248",
+			"revisionTime": "2016-03-07T12:19:07-08:00"
+		}
+	]
+}
