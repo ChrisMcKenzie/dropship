@@ -8,8 +8,5 @@ dependencies:
     - rsync -azC --delete ./ "$GOPATH/src/$IMPORT_PATH/"
 
 test:
-  pre:
-    - go vet ./...
-
   override:
     - go test ./...
