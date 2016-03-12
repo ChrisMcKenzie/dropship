@@ -13,6 +13,16 @@
 			"revisionTime": "2016-03-09T11:48:00+11:00"
 		},
 		{
+			"path": "github.com/gorilla/context",
+			"revision": "215affda49addc4c8ef7e2534915df2c8c35c6cd",
+			"revisionTime": "2014-12-17T08:02:51-08:00"
+		},
+		{
+			"path": "github.com/gorilla/mux",
+			"revision": "26a6070f849969ba72b72256e9f14cf519751690",
+			"revisionTime": "2015-12-31T08:19:08-08:00"
+		},
+		{
 			"path": "github.com/hashicorp/consul/api",
 			"revision": "4d5b13f417a35dbad0ab59d12807ca67d0f4413c",
 			"revisionTime": "2016-02-18T15:50:12-08:00"
