@@ -1,4 +1,4 @@
-box: golang:1.5-wheezy
+box: golang:1.6
 
 build:
   steps:
@@ -7,5 +7,4 @@ build:
      - script:
        name: Test build
        code: |
-         go get ./...
          go test -v ./...
