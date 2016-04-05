@@ -14,11 +14,51 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 package manager
 
-import "net/http"
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+
+	log "github.com/Sirupsen/logrus"
+)
+
+type Service struct {
+	Name        string   `json:"name"`
+	Href        string   `json:"href"`
+	Description string   `json:"description"`
+	LastDeploy  string   `json:"last_deployed_on"`
+	Hosts       []string `json:"hosts"`
+}
 
 func servicesIndex(w http.ResponseWriter, r *http.Request) {
+	keys, err := kvstore.List(fmt.Sprintf("%s/services/", DefaultKeyPrefix))
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte(err.Error()))
+	}
+
+	var services []Service
+	for _, val := range keys {
+		key := strings.Split(val.Key, "/")
+		var svc Service
+		err := json.Unmarshal(val.Value, &svc)
+		if err != nil {
+			log.Error(err)
+		}
+		svc.Name = key[len(key)-1]
+		services = append(services, svc)
+	}
+
+	payload, err := json.Marshal(services)
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 	w.WriteHeader(200)
-	w.Write([]byte("hello, world"))
+	w.Write(payload)
 }
 
 func servicesShow(w http.ResponseWriter, r *http.Request) {

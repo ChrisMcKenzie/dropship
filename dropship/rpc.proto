@@ -16,15 +16,55 @@
 syntax = "proto3";
 package dropship;
 
-service rpcService {
-  rpc RegisterService (Service) returns (RegisterResponse);
+service Management {
+  rpc MemberAdd (MemberAddRequest) returns (MemberAddResponse) {}
+  rpc MemberRemove (MemberRemoveRequest) returns (MemberRemoveResponse) {}
 }
 
-message Service {
-  string name = 1;
+service Deploy {
+  rpc Watch(stream DeployRequest) returns (stream DeployResponse) {}
+  rpc Trigger(DeployRequest) returns (stream DeployResponse) {}
 }
 
-message RegisterResponse {
-  bool success = 1;
+message Event {
+  enum EventType {
+    INFO = 0;
+    ERROR = 1;
+  }
+
+  EventType type = 1;
   string message = 2;
 }
+
+message DeployRequest {
+  string Service = 1;
+  string Revision = 2;
+}
+
+message DeployResponse {
+  repeated Event events = 1;
+}
+
+message Member {
+  uint64 ID = 1;
+  string name = 2;
+  repeated string peerUrls = 3;
+}
+
+message MemberAddRequest {
+  string name = 1;
+  repeated string peerUrls = 2;
+}
+
+message MemberAddResponse {
+  Member member = 1;
+}
+
+message MemberRemoveRequest {
+  uint64 ID = 1;
+}
+
+message MemberRemoveResponse {
+  bool success = 1;
+}
+

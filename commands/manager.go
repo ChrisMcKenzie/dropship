@@ -15,10 +15,13 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/ChrisMcKenzie/dropship/manager"
-	"github.com/labstack/gommon/log"
 	"github.com/spf13/cobra"
 )
+
+var StoreURL string
 
 var managerCmd = &cobra.Command{
 	Use:   "manage",
@@ -26,8 +29,20 @@ var managerCmd = &cobra.Command{
 	Run:   managerC,
 }
 
-func managerC(c *cobra.Command, args []string) {
-	go manager.ServeRpc(3000)
+func init() {
+	managerCmd.PersistentFlags().StringVar(&StoreURL, "store", "", "where dropship stores its data (ie. consul://127.0.0.1:8500)")
+}
 
-	log.Error(manager.ServeHttp(3001))
+func managerC(c *cobra.Command, args []string) {
+	printInitSummary()
+	manager.Start(StoreURL)
+}
+
+func printInitSummary() {
+	fmt.Printf(
+		"Dropship\n  version: %s\n  build date: %s\nSettings\n  storage url: %s\n",
+		version,
+		buildDate,
+		StoreURL,
+	)
 }

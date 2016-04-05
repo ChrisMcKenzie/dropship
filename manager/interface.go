@@ -15,37 +15,14 @@
 package manager
 
 import (
-	"net/url"
-	"sync"
+	"fmt"
+	"net/http"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/docker/libkv/store"
 )
 
-var kvstore store.Store
-
-func Start(storePath string) {
-	storeUrl, err := url.Parse(storePath)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	kvstore, err = initStore(storeUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		log.Fatal(serveRpc(3000))
-		wg.Done()
-	}()
-	wg.Add(1)
-	go func() {
-		log.Fatal(serveInterface(3001))
-		wg.Done()
-	}()
-	wg.Wait()
+func serveInterface(port int) error {
+	router := newRouter()
+	log.Infof("HTTP Server Listening on port %d", port)
+	return http.ListenAndServe(fmt.Sprintf(":%d", port), router)
 }

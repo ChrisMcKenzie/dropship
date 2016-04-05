@@ -30,10 +30,16 @@ import (
 var updaters map[string]dropship.Updater = make(map[string]dropship.Updater)
 var lockers map[string]dropship.Locker = make(map[string]dropship.Locker)
 
+var advertiseIp string
+
 var agentCmd = &cobra.Command{
 	Use:   "agent",
 	Short: "starts automatic checks and update",
 	Run:   agentC,
+}
+
+func init() {
+	agentCmd.PersistentFlags().StringVar(&advertiseIp, "advertise-ip", "", "Ip address used to register with manager")
 }
 
 func agentC(c *cobra.Command, args []string) {
@@ -72,7 +78,10 @@ func agentC(c *cobra.Command, args []string) {
 			log.Errorf("Unable to find updater %s", service.Artifact["type"])
 		}
 
-		_, err := client.RegisterService(context.Background(), &dropship.Service{service.Name})
+		_, err := client.RegisterService(context.Background(), &dropship.Service{
+			service.Name,
+			advertiseIp,
+		})
 		if err != nil {
 			log.Error(err)
 		}
