@@ -9,6 +9,7 @@ import (
 // it to the dest directory.
 type FileInstaller struct{}
 
+// Install will copy the given io.Reader to the destination path
 func (i FileInstaller) Install(dest string, f io.Reader) (count int, err error) {
 	// if file exists lets move it so we can recover on failure
 	if _, err := os.Stat(dest); err == nil {

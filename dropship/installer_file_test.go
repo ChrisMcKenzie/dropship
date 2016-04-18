@@ -35,7 +35,7 @@ func TestInstallFile(t *testing.T) {
 		}
 
 		if count != test.count {
-			t.Errorf("Install: Expected % files to be installed got %v", test.count, count)
+			t.Errorf("Install: Expected %d files to be installed got %v", test.count, count)
 		}
 	}
 }

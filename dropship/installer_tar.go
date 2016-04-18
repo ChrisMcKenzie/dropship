@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 )
 
+// ErrNilReader is a generic error for when the reader is nil
 var ErrNilReader = errors.New("Install: must have a non-nil Reader")
 
 // TarInstaller Defines an install Method that takes a destination path
@@ -17,7 +18,10 @@ var ErrNilReader = errors.New("Install: must have a non-nil Reader")
 // It returns the number of files written and an error
 type TarInstaller struct{}
 
+// Install defines the Installer required function that will in this case
+// untar and copy files to the destination directory
 func (i TarInstaller) Install(dest string, fr io.Reader) (count int, err error) {
+	defer cleanup(dest, err)
 	moveOld(dest)
 	if fr == nil {
 		return count, ErrNilReader
@@ -48,9 +52,6 @@ func (i TarInstaller) Install(dest string, fr io.Reader) (count int, err error) 
 		}
 		count++
 	}
-
-	defer cleanup(dest, err)
-	return
 }
 
 func writePath(hdr *tar.Header, tr *tar.Reader, dest string) (err error) {
