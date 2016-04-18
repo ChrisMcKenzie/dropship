@@ -28,6 +28,8 @@ type Runner struct {
 	wg   sync.WaitGroup
 }
 
+// NewRunner creates a new runner with the number go routines created and
+// ready for work
 func NewRunner(maxGoRoutines int) *Runner {
 	r := Runner{
 		work: make(chan Worker),
@@ -46,10 +48,14 @@ func NewRunner(maxGoRoutines int) *Runner {
 	return &r
 }
 
+// Do will schedule work on to the runner pull by placing a worker stuct
+// on the channel
 func (r *Runner) Do(w Worker) {
 	r.work <- w
 }
 
+// Shutdown will signal the pool to stop accepting work and finish any
+// current jobs
 func (r *Runner) Shutdown() {
 	close(r.work)
 	r.wg.Wait()

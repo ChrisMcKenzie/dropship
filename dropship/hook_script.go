@@ -23,8 +23,11 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+// ScriptHook defines a Hook that will run a specified command on a the
+// machine.
 type ScriptHook struct{}
 
+// Execute is a Hook method to execut the hook with standard options
 func (h ScriptHook) Execute(config HookConfig, service Config) error {
 	if c := config["command"]; c != "" {
 
