@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os/exec"
@@ -23,6 +22,7 @@ type Dispatcher struct {
 	shutdownCh <-chan struct{}
 }
 
+// NewDispatcher return a new Dispatcher.
 func NewDispatcher(cfg dropship.Config, t *Runner, wg *sync.WaitGroup, shutdownCh <-chan struct{}) (*Dispatcher, error) {
 	w := Dispatcher{
 		config:     cfg,
@@ -57,6 +57,8 @@ func (w *Dispatcher) start() {
 	}
 }
 
+// Work is responsible for actually performing all the check, download, install
+// and script execution for a given service
 func (w *Dispatcher) Work() {
 	log.Printf("[INF]: Starting Update check for %s...", w.config.Name)
 
@@ -175,8 +177,6 @@ func getInstaller(contentType string) (dropship.Installer, error) {
 		var installer dropship.FileInstaller
 		return installer, nil
 	}
-
-	return nil, errors.New("Unable to determine installation method from file type")
 }
 
 func runHooks(hooks []dropship.HookDefinition, service dropship.Config) error {
