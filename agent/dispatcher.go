@@ -59,6 +59,9 @@ func (w *Dispatcher) start() {
 
 // Work is responsible for actually performing all the check, download, install
 // and script execution for a given service
+//
+// TODO(ChrisMcKenzie): this is really gross now and needs to be cleaned up
+// and broken out in to smaller chunks of logic.
 func (w *Dispatcher) Work() {
 	log.Printf("[INF]: Starting Update check for %s...", w.config.Name)
 
@@ -93,17 +96,6 @@ func (w *Dispatcher) Work() {
 			return
 		}
 
-		// Deprecated
-		if w.config.PreCommand != "" {
-			log.Printf("[WARN]: preCommand has been deprecated.")
-			res, err := executeCommand(w.config.PreCommand)
-			if err != nil {
-				log.Printf("[ERR]: Unable to execute preCommand. %v", err)
-			} else {
-				log.Printf("[INF]: preCommand executed successfully. %v", res)
-			}
-		}
-
 		err = runHooks(w.config.BeforeHooks, w.config)
 		if err != nil {
 			log.Printf("[ERR]: Unable to execute beforeHooks. %v", err)
@@ -123,19 +115,6 @@ func (w *Dispatcher) Work() {
 		filesWritten, err := i.Install(w.config.Artifact["destination"], fr)
 		if err != nil {
 			log.Printf("[ERR]: Unable to install update for %s %s", w.config.Name, err)
-		}
-
-		// Deprecated
-		if w.config.PostCommand != "" {
-			log.Printf("[WARN]: postCommand has been deprecated.")
-			defer func() {
-				res, err := executeCommand(w.config.PostCommand)
-				if err != nil {
-					log.Printf("[ERR]: Unable to execute postCommand. %v", err)
-				} else {
-					log.Printf("[INF]: postCommand executed successfully. %v", res)
-				}
-			}()
 		}
 
 		log.Printf("[INF]: Update for %s installed successfully. [hash: %s] [files written: %d]", w.config.Name, meta.Hash, filesWritten)

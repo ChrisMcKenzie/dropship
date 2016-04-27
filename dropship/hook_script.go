@@ -10,10 +10,16 @@ import (
 
 // ScriptHook defines a Hook that will run a specified command on a the
 // machine.
-type ScriptHook struct{}
+type ScriptHook struct {
+	HookMeta
+}
+
+func NewScriptHook() *ScriptHook {
+	return &ScriptHook{HookMeta{"script"}}
+}
 
 // Execute is a Hook method to execut the hook with standard options
-func (h ScriptHook) Execute(config HookConfig, service Config) error {
+func (h *ScriptHook) Execute(config HookConfig, service Config) error {
 	if c := config["command"]; c != "" {
 
 		// TODO(ChrisMcKenzie): Make this more secure by jailing it.

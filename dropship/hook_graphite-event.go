@@ -10,9 +10,15 @@ import (
 	"text/template"
 )
 
-type GraphiteEventHook struct{}
+type GraphiteEventHook struct {
+	HookMeta
+}
 
-func (h GraphiteEventHook) Execute(config HookConfig, service Config) error {
+func NewGraphiteEventHook() *GraphiteEventHook {
+	return &GraphiteEventHook{HookMeta{"script"}}
+}
+
+func (h *GraphiteEventHook) Execute(config HookConfig, service Config) error {
 	host, ok := config["host"]
 	if !ok {
 		return fmt.Errorf("Graphite Hook: unable to call graphite invalid host provided %v", config["host"])

@@ -3,15 +3,13 @@ package dropship
 import (
 	"os"
 	"testing"
-
-	"github.com/hashicorp/consul/api"
 )
 
 func TestConsulEventHook(t *testing.T) {
 	if os.Getenv("CI") == "true" {
 		t.Skip("Skipping in CI")
 	}
-	hook := ConsulEventHook{api.DefaultConfig()}
+	hook := NewConsulEventHook()
 
 	err := hook.Execute(HookConfig{
 		"name":    "graphite",

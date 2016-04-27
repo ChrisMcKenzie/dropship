@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/ChrisMcKenzie/dropship/commands/agent"
+	"github.com/ChrisMcKenzie/dropship/agent"
 	"github.com/ChrisMcKenzie/dropship/dropship"
 	"github.com/spf13/cobra"
 )

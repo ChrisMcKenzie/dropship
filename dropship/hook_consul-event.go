@@ -9,12 +9,13 @@ import (
 )
 
 type ConsulEventHook struct {
+	HookMeta
 	config *api.Config
 }
 
-func NewConsulEventHook(cfg map[string]string) ConsulEventHook {
-	config := initializeConsulConfig(cfg)
-	return ConsulEventHook{config}
+func NewConsulEventHook() *ConsulEventHook {
+	config := initializeConsulConfig(nil)
+	return &ConsulEventHook{HookMeta{"consul-event"}, config}
 }
 
 func (h ConsulEventHook) Execute(config HookConfig, service Config) error {
