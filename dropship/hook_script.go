@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 // ScriptHook defines a Hook that will run a specified command on a the
@@ -30,8 +29,7 @@ func (h ScriptHook) Execute(config HookConfig, service Config) error {
 }
 
 func executeCommand(c, cwd string) (string, error) {
-	sCmd := strings.Fields(c)
-	cmd := exec.Command(sCmd[0], sCmd[1:]...)
+	cmd := exec.Command("bash", "-c", c)
 	if _, err := os.Stat(cwd); !os.IsNotExist(err) {
 		cmd.Dir = cwd
 	}
