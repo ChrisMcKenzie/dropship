@@ -1,4 +1,4 @@
-box: golang:1.5-wheezy
+box: golang:latest
 
 build:
   steps:
